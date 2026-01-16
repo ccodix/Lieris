@@ -24,7 +24,48 @@ local Assets = {
     CloseButton = "rbxassetid://75618206104636",
     MinimizeButton = "rbxassetid://95966901348174",
     Font = Enum.Font.Gotham,
-    FontBold = Enum.Font.GothamBold
+    FontBold = Enum.Font.GothamBold,
+    -- Icon Library
+    Icons = {
+        ArrowUp = "rbxassetid://132774784825596",
+        Star = "rbxassetid://92707187440072",
+        Edit = "rbxassetid://79102469506206",
+        ArrowLeft = "rbxassetid://73627730802442",
+        ArrowUpAlt = "rbxassetid://86798019032056",
+        ArrowRight = "rbxassetid://78259254071491",
+        ArrowDown = "rbxassetid://95371614437264",
+        Undo = "rbxassetid://108718392331342",
+        Trash = "rbxassetid://120799379418283",
+        Key = "rbxassetid://124296337565532",
+        Plus = "rbxassetid://113292455067178",
+        Alert = "rbxassetid://129002225813257",
+        Info = "rbxassetid://72675213757354",
+        Settings = "rbxassetid://102267096559735",
+        Gun = "rbxassetid://131253277679602",
+        Rifle = "rbxassetid://92276134372777",
+        List = "rbxassetid://97543050372859",
+        Dollar = "rbxassetid://99027619708694",
+        Database = "rbxassetid://139502699163631",
+        Question = "rbxassetid://136925848170066",
+        StarHalf = "rbxassetid://108853802570915",
+        Brain = "rbxassetid://84614763334611",
+        Document = "rbxassetid://101184153582665",
+        Padlock = "rbxassetid://101648628065104",
+        Fullscreen = "rbxassetid://140212636469024",
+        Folder = "rbxassetid://127886922473441",
+        Heart = "rbxassetid://86525383749807",
+        Flame = "rbxassetid://73806373761889",
+        Time = "rbxassetid://92180740914957",
+        Crown = "rbxassetid://126259774551591",
+        Camera = "rbxassetid://125788738236572",
+        Cloud = "rbxassetid://109550289152072",
+        Discord = "rbxassetid://89700473399405",
+        Resize = "rbxassetid://100459617281310",
+        Lightning = "rbxassetid://113425277383163",
+        Briefcase = "rbxassetid://138340962857599",
+        Shield = "rbxassetid://85965347730498",
+        Eye = "rbxassetid://125020341331789"
+    }
 }
 
 -- [ Colors ] --
@@ -124,6 +165,89 @@ local function EnsureConfigSystem()
     if not isfolder(LierisUi.ConfigFolder) then
         makefolder(LierisUi.ConfigFolder)
     end
+end
+
+-- [ Notification System ] --
+local NotificationContainer
+function LierisUi:Notify(options)
+    options = options or {}
+    local Title = options.Title or "Notification"
+    local Content = options.Content or ""
+    local Duration = options.Duration or 3
+    local Icon = options.Icon or Assets.Icons.Info
+    
+    if not NotificationContainer then
+        NotificationContainer = Create("ScreenGui", {
+            Name = "LierisNotifications",
+            Parent = CoreGui,
+            ResetOnSpawn = false,
+            DisplayOrder = 999
+        })
+        Create("UIListLayout", {
+            Parent = NotificationContainer,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = UDim.new(0, 10),
+            HorizontalAlignment = Enum.HorizontalAlignment.Right,
+            VerticalAlignment = Enum.VerticalAlignment.Bottom
+        })
+        Create("UIPadding", {
+            Parent = NotificationContainer,
+            PaddingBottom = UDim.new(0, 20),
+            PaddingRight = UDim.new(0, 20)
+        })
+    end
+    
+    local Notification = Create("Frame", {
+        Parent = NotificationContainer,
+        Size = UDim2.new(0, 300, 0, 80),
+        BackgroundColor3 = Colors.Secondary,
+        BorderSizePixel = 0
+    })
+    Create("UICorner", {Parent = Notification, CornerRadius = UDim.new(0, 8)})
+    Create("UIStroke", {Parent = Notification, Color = Colors.Accent1, Transparency = 0.5, Thickness = 2})
+    
+    local IconImage = Create("ImageLabel", {
+        Parent = Notification,
+        Size = UDim2.new(0, 40, 0, 40),
+        Position = UDim2.new(0, 10, 0, 20),
+        Image = Icon,
+        BackgroundTransparency = 1
+    })
+    
+    local TitleLabel = Create("TextLabel", {
+        Parent = Notification,
+        Size = UDim2.new(1, -60, 0, 20),
+        Position = UDim2.new(0, 60, 0, 15),
+        Text = Title,
+        TextColor3 = Colors.Text,
+        Font = Assets.FontBold,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1
+    })
+    
+    local ContentLabel = Create("TextLabel", {
+        Parent = Notification,
+        Size = UDim2.new(1, -60, 0, 35),
+        Position = UDim2.new(0, 60, 0, 35),
+        Text = Content,
+        TextColor3 = Colors.TextDark,
+        Font = Assets.Font,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        TextWrapped = true,
+        BackgroundTransparency = 1
+    })
+    
+    Notification.Position = UDim2.new(1, 320, 1, 0)
+    Tween(Notification, {Position = UDim2.new(1, -310, 1, 0)}, 0.5)
+    
+    task.delay(Duration, function()
+        Tween(Notification, {Position = UDim2.new(1, 20, 1, 0)}, 0.3)
+        task.wait(0.3)
+        Notification:Destroy()
+    end)
 end
 
 -- [ Library Main ] --
@@ -254,12 +378,28 @@ function LierisUi:CreateWindow(options)
     })
 
     local WindowObj = {}
+    WindowObj.Visible = true
+    WindowObj.ScreenGui = ScreenGui
+    WindowObj.MainFrame = MainFrame
     local Tabs = {}
     local FirstTab = true
+    
+    -- Toggle UI Visibility
+    function WindowObj:ToggleUI()
+        WindowObj.Visible = not WindowObj.Visible
+        ScreenGui.Enabled = WindowObj.Visible
+    end
+    
+    -- Set UI Visibility
+    function WindowObj:SetVisible(visible)
+        WindowObj.Visible = visible
+        ScreenGui.Enabled = visible
+    end
 
     function WindowObj:CreateTab(tabOptions)
         tabOptions = tabOptions or {}
         local TabName = tabOptions.Name or "Tab"
+        local Icon = tabOptions.Icon
         
         local TabButton = Create("TextButton", {
             Name = TabName .. "Btn",
@@ -267,12 +407,59 @@ function LierisUi:CreateWindow(options)
             Size = UDim2.new(1, 0, 0, 32),
             BackgroundColor3 = Colors.Secondary,
             BackgroundTransparency = 1,
-            Text = TabName,
+            Text = Icon and "" or TabName,
             TextColor3 = Colors.TextDark,
             Font = Assets.Font,
             TextSize = 14
         })
         Create("UICorner", {Parent = TabButton, CornerRadius = UDim.new(0, 6)})
+        
+        if Icon then
+            local TabIcon = Create("ImageLabel", {
+                Parent = TabButton,
+                Size = UDim2.new(0, 20, 0, 20),
+                Position = UDim2.new(0, 5, 0, 6),
+                Image = Icon,
+                BackgroundTransparency = 1,
+                ImageColor3 = Colors.TextDark
+            })
+            
+            local TabLabel = Create("TextLabel", {
+                Parent = TabButton,
+                Size = UDim2.new(1, -30, 1, 0),
+                Position = UDim2.new(0, 30, 0, 0),
+                Text = TabName,
+                TextColor3 = Colors.TextDark,
+                Font = Assets.Font,
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                BackgroundTransparency = 1
+            })
+            
+            local originalActivate = nil
+            originalActivate = function()
+                for _, t in pairs(Tabs) do
+                    Tween(t.Btn, {BackgroundTransparency = 1, TextColor3 = Colors.TextDark})
+                    if t.Icon then t.Icon.ImageColor3 = Colors.TextDark end
+                    if t.Label then t.Label.TextColor3 = Colors.TextDark end
+                    t.Page.Visible = false
+                end
+                Tween(TabButton, {BackgroundTransparency = 0.8, TextColor3 = Colors.Text})
+                TabIcon.ImageColor3 = Colors.Text
+                TabLabel.TextColor3 = Colors.Text
+                Page.Visible = true
+            end
+            
+            TabButton.MouseButton1Click:Connect(originalActivate)
+            
+            if FirstTab then
+                FirstTab = false
+                originalActivate()
+            end
+            
+            table.insert(Tabs, {Btn = TabButton, Page = Page, Icon = TabIcon, Label = TabLabel})
+        else
+        end
         
         local Page = Create("ScrollingFrame", {
             Name = TabName .. "Page",
@@ -289,24 +476,28 @@ function LierisUi:CreateWindow(options)
             Padding = UDim.new(0, 10)
         })
         
-        -- Tab Switching
-        local function Activate()
-            for _, t in pairs(Tabs) do
-                Tween(t.Btn, {BackgroundTransparency = 1, TextColor3 = Colors.TextDark})
-                t.Page.Visible = false
+        if not Icon then
+            -- Tab Switching for non-icon tabs
+            local function Activate()
+                for _, t in pairs(Tabs) do
+                    Tween(t.Btn, {BackgroundTransparency = 1, TextColor3 = Colors.TextDark})
+                    if t.Icon then t.Icon.ImageColor3 = Colors.TextDark end
+                    if t.Label then t.Label.TextColor3 = Colors.TextDark end
+                    t.Page.Visible = false
+                end
+                Tween(TabButton, {BackgroundTransparency = 0.8, TextColor3 = Colors.Text})
+                Page.Visible = true
             end
-            Tween(TabButton, {BackgroundTransparency = 0.8, TextColor3 = Colors.Text})
-            Page.Visible = true
+            
+            TabButton.MouseButton1Click:Connect(Activate)
+            
+            if FirstTab then
+                FirstTab = false
+                Activate()
+            end
+            
+            table.insert(Tabs, {Btn = TabButton, Page = Page})
         end
-        
-        TabButton.MouseButton1Click:Connect(Activate)
-        
-        if FirstTab then
-            FirstTab = false
-            Activate()
-        end
-        
-        table.insert(Tabs, {Btn = TabButton, Page = Page})
         
         local TabObj = {}
         
@@ -364,6 +555,43 @@ function LierisUi:CreateWindow(options)
                     TextSize = 14,
                     TextXAlignment = Enum.TextXAlignment.Left,
                     BackgroundTransparency = 1
+                })
+            end
+            
+            -- [ PARAGRAPH ] --
+            function Elements:CreateParagraph(props)
+                local text = props.Text or props.Content or "Paragraph text"
+                local Paragraph = Create("TextLabel", {
+                    Parent = SectionContent,
+                    Size = UDim2.new(1, 0, 0, 50),
+                    Text = text,
+                    TextColor3 = Colors.TextDark,
+                    Font = Assets.Font,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextYAlignment = Enum.TextYAlignment.Top,
+                    TextWrapped = true,
+                    BackgroundTransparency = 1
+                })
+                
+                -- Auto-size based on text
+                local textSize = game:GetService("TextService"):GetTextSize(
+                    text,
+                    13,
+                    Assets.Font,
+                    Vector2.new(Paragraph.AbsoluteSize.X, math.huge)
+                )
+                Paragraph.Size = UDim2.new(1, 0, 0, math.max(30, textSize.Y + 10))
+            end
+            
+            -- [ DIVIDER ] --
+            function Elements:CreateDivider()
+                local Divider = Create("Frame", {
+                    Parent = SectionContent,
+                    Size = UDim2.new(1, -20, 0, 2),
+                    Position = UDim2.new(0, 10, 0, 0),
+                    BackgroundColor3 = Colors.Outline,
+                    BorderSizePixel = 0
                 })
             end
             
