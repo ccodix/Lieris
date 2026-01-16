@@ -401,6 +401,30 @@ function LierisUi:CreateWindow(options)
         local TabName = tabOptions.Name or "Tab"
         local Icon = tabOptions.Icon
         
+        -- Create Page first to avoid reference issues
+        local Page = Create("ScrollingFrame", {
+            Name = TabName .. "Page",
+            Parent = PagesContainer,
+            Size = UDim2.new(1, 0, 1, 0),
+            BackgroundTransparency = 1,
+            ScrollBarThickness = 2,
+            ScrollBarImageColor3 = Colors.Accent2,
+            Visible = false,
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            AutomaticCanvasSize = Enum.AutomaticSize.Y
+        })
+        Create("UIListLayout", {
+            Parent = Page,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = UDim.new(0, 10)
+        })
+        Create("UIPadding", {
+            Parent = Page,
+            PaddingTop = UDim.new(0, 5),
+            PaddingBottom = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 5)
+        })
+        
         local TabButton = Create("TextButton", {
             Name = TabName .. "Btn",
             Parent = TabContainer,
@@ -414,20 +438,22 @@ function LierisUi:CreateWindow(options)
         })
         Create("UICorner", {Parent = TabButton, CornerRadius = UDim.new(0, 6)})
         
+        local TabIcon, TabLabel
+        
         if Icon then
-            local TabIcon = Create("ImageLabel", {
+            TabIcon = Create("ImageLabel", {
                 Parent = TabButton,
-                Size = UDim2.new(0, 20, 0, 20),
-                Position = UDim2.new(0, 5, 0, 6),
+                Size = UDim2.new(0, 18, 0, 18),
+                Position = UDim2.new(0, 8, 0, 7),
                 Image = Icon,
                 BackgroundTransparency = 1,
                 ImageColor3 = Colors.TextDark
             })
             
-            local TabLabel = Create("TextLabel", {
+            TabLabel = Create("TextLabel", {
                 Parent = TabButton,
-                Size = UDim2.new(1, -30, 1, 0),
-                Position = UDim2.new(0, 30, 0, 0),
+                Size = UDim2.new(1, -35, 1, 0),
+                Position = UDim2.new(0, 32, 0, 0),
                 Text = TabName,
                 TextColor3 = Colors.TextDark,
                 Font = Assets.Font,
@@ -435,68 +461,44 @@ function LierisUi:CreateWindow(options)
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundTransparency = 1
             })
-            
-            local originalActivate = nil
-            originalActivate = function()
-                for _, t in pairs(Tabs) do
-                    Tween(t.Btn, {BackgroundTransparency = 1, TextColor3 = Colors.TextDark})
-                    if t.Icon then t.Icon.ImageColor3 = Colors.TextDark end
-                    if t.Label then t.Label.TextColor3 = Colors.TextDark end
-                    t.Page.Visible = false
-                end
-                Tween(TabButton, {BackgroundTransparency = 0.8, TextColor3 = Colors.Text})
-                TabIcon.ImageColor3 = Colors.Text
-                TabLabel.TextColor3 = Colors.Text
-                Page.Visible = true
-            end
-            
-            TabButton.MouseButton1Click:Connect(originalActivate)
-            
-            if FirstTab then
-                FirstTab = false
-                originalActivate()
-            end
-            
-            table.insert(Tabs, {Btn = TabButton, Page = Page, Icon = TabIcon, Label = TabLabel})
-        else
         end
         
-        local Page = Create("ScrollingFrame", {
-            Name = TabName .. "Page",
-            Parent = PagesContainer,
-            Size = UDim2.new(1, 0, 1, 0),
-            BackgroundTransparency = 1,
-            ScrollBarThickness = 2,
-            ScrollBarImageColor3 = Colors.Accent2,
-            Visible = false
-        })
-        Create("UIListLayout", {
-            Parent = Page,
-            SortOrder = Enum.SortOrder.LayoutOrder,
-            Padding = UDim.new(0, 10)
-        })
+        -- Tab Switching
+        local function Activate()
+            for _, t in pairs(Tabs) do
+                Tween(t.Btn, {BackgroundTransparency = 1})
+                if t.Icon then Tween(t.Icon, {ImageColor3 = Colors.TextDark}) end
+                if t.Label then Tween(t.Label, {TextColor3 = Colors.TextDark}) end
+                if not t.Icon then Tween(t.Btn, {TextColor3 = Colors.TextDark}) end
+                t.Page.Visible = false
+            end
+            Tween(TabButton, {BackgroundTransparency = 0.7})
+            if TabIcon then Tween(TabIcon, {ImageColor3 = Colors.Text}) end
+            if TabLabel then Tween(TabLabel, {TextColor3 = Colors.Text}) end
+            if not Icon then Tween(TabButton, {TextColor3 = Colors.Text}) end
+            Page.Visible = true
+        end
         
-        if not Icon then
-            -- Tab Switching for non-icon tabs
-            local function Activate()
-                for _, t in pairs(Tabs) do
-                    Tween(t.Btn, {BackgroundTransparency = 1, TextColor3 = Colors.TextDark})
-                    if t.Icon then t.Icon.ImageColor3 = Colors.TextDark end
-                    if t.Label then t.Label.TextColor3 = Colors.TextDark end
-                    t.Page.Visible = false
-                end
-                Tween(TabButton, {BackgroundTransparency = 0.8, TextColor3 = Colors.Text})
-                Page.Visible = true
+        TabButton.MouseButton1Click:Connect(Activate)
+        
+        -- Add hover effects
+        TabButton.MouseEnter:Connect(function()
+            if not Page.Visible then
+                Tween(TabButton, {BackgroundTransparency = 0.85})
             end
-            
-            TabButton.MouseButton1Click:Connect(Activate)
-            
-            if FirstTab then
-                FirstTab = false
-                Activate()
+        end)
+        
+        TabButton.MouseLeave:Connect(function()
+            if not Page.Visible then
+                Tween(TabButton, {BackgroundTransparency = 1})
             end
-            
-            table.insert(Tabs, {Btn = TabButton, Page = Page})
+        end)
+        
+        table.insert(Tabs, {Btn = TabButton, Page = Page, Icon = TabIcon, Label = TabLabel})
+        
+        if FirstTab then
+            FirstTab = false
+            Activate()
         end
         
         local TabObj = {}
@@ -1084,8 +1086,14 @@ function LierisUi:CreateWindow(options)
     end
 
     -- Setup Config Manager Tab automatically
-    local ConfigTab = WindowObj:CreateTab({Name = "Settings"})
+    local ConfigTab = WindowObj:CreateTab({
+        Name = "Settings",
+        Icon = Assets.Icons.Settings
+    })
+    
     local ConfigSection = ConfigTab:CreateSection("Configuration")
+    
+    ConfigSection:CreateLabel("Save and load your settings")
     
     ConfigSection:CreateInput({
         Name = "Config Name",
@@ -1096,15 +1104,76 @@ function LierisUi:CreateWindow(options)
     
     ConfigSection:CreateButton({
         Name = "Save Config",
-        Callback = function() LierisUi:SaveConfig(LierisUi.CurrentConfig) end
+        Callback = function()
+            LierisUi:SaveConfig(LierisUi.CurrentConfig)
+            LierisUi:Notify({
+                Title = "Config Saved",
+                Content = "Configuration saved as: " .. LierisUi.CurrentConfig,
+                Icon = Assets.Icons.Document,
+                Duration = 2
+            })
+        end
     })
     
     ConfigSection:CreateButton({
         Name = "Load Config",
-        Callback = function() LierisUi:LoadConfig(LierisUi.CurrentConfig) end
+        Callback = function()
+            LierisUi:LoadConfig(LierisUi.CurrentConfig)
+            LierisUi:Notify({
+                Title = "Config Loaded",
+                Content = "Configuration loaded: " .. LierisUi.CurrentConfig,
+                Icon = Assets.Icons.Folder,
+                Duration = 2
+            })
+        end
+    })
+    
+    local ThemeSection = ConfigTab:CreateSection("Theme Settings")
+    
+    ThemeSection:CreateColorPicker({
+        Name = "Accent Color (Blue)",
+        Flag = "ThemeAccent1",
+        Default = Colors.Accent1,
+        Callback = function(color)
+            Colors.Accent1 = color
+        end
+    })
+    
+    ThemeSection:CreateColorPicker({
+        Name = "Accent Color (Purple)",
+        Flag = "ThemeAccent2",
+        Default = Colors.Accent2,
+        Callback = function(color)
+            Colors.Accent2 = color
+        end
+    })
+    
+    local InfoSection = ConfigTab:CreateSection("Information")
+    
+    InfoSection:CreateParagraph({
+        Text = "Lieris Ui Library v2.0 - A modern, feature-rich UI library for Roblox scripts. Designed with smooth animations, beautiful colors, and complete functionality."
+    })
+    
+    InfoSection:CreateButton({
+        Name = "Copy GitHub Link",
+        Callback = function()
+            if setclipboard then
+                setclipboard("https://github.com/ccodix/Lieris")
+                LierisUi:Notify({
+                    Title = "Copied",
+                    Content = "GitHub link copied to clipboard!",
+                    Icon = Assets.Icons.Document,
+                    Duration = 2
+                })
+            end
+        end
     })
 
     return WindowObj
 end
+
+-- Expose Assets for external use
+LierisUi.Assets = Assets
+LierisUi.Colors = Colors
 
 return LierisUi
