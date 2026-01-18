@@ -810,7 +810,7 @@ local function AddGlow(parent, color, size, transparency)
         Position = UDim2.new(0.5, 0, 0.5, 0),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Size = UDim2.new(1, size or 30, 1, size or 30),
-        ZIndex = parent.ZIndex - 1,
+        ZIndex = 0,
         Image = "rbxassetid://5028857084",
         ImageColor3 = color or Colors.Accent1,
         ImageTransparency = transparency or 0.85,
