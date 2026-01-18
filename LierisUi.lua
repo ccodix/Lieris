@@ -602,6 +602,9 @@ local Assets = {
     FontSemiBold = Enum.Font.GothamSemibold,
     
     Icons = {
+        -- Navigation
+        Home = "rbxassetid://92707187440072",
+        
         -- Arrows
         ArrowUp = "rbxassetid://86798019032056",
         ArrowDown = "rbxassetid://95371614437264",
@@ -644,6 +647,7 @@ local Assets = {
         -- Combat
         Gun = "rbxassetid://131253277679602",
         Rifle = "rbxassetid://92276134372777",
+        Target = "rbxassetid://131253277679602",
         
         -- Finance
         Dollar = "rbxassetid://99027619708694",
@@ -658,9 +662,16 @@ local Assets = {
         Brain = "rbxassetid://84614763334611",
         Camera = "rbxassetid://125788738236572",
         Discord = "rbxassetid://89700473399405",
+        Code = "rbxassetid://84614763334611",
         
         -- Time
         Time = "rbxassetid://92180740914957",
+        
+        -- Player
+        Player = "rbxassetid://85965347730498",
+        
+        -- Misc
+        Misc = "rbxassetid://102267096559735",
         
         -- UI Controls
         Check = "rbxassetid://93564507432615",
