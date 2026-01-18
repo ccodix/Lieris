@@ -1,570 +1,20 @@
 --[[
 ================================================================================
-    LIERIS UI LIBRARY v3.0
-    A Clean, Smooth UI Library for Roblox Script Interfaces
-================================================================================
-
-    DOCUMENTATION & USAGE GUIDE
+    LIERIS UI LIBRARY v4.0
+    UI Library for Roblox Script Injectors
     
-================================================================================
-    TABLE OF CONTENTS
-================================================================================
-    1. GETTING STARTED
-    2. CREATING A WINDOW
-    3. CREATING TABS
-    4. CREATING SECTIONS
-    5. UI ELEMENTS
-        5.1  Button
-        5.2  Toggle
-        5.3  Slider
-        5.4  Dropdown
-        5.5  Input (TextBox)
-        5.6  Keybind
-        5.7  Color Picker
-        5.8  Label
-        5.9  Paragraph
-        5.10 Divider
-    6. NOTIFICATIONS
-    7. CONFIG SYSTEM
-    8. THEME CUSTOMIZATION
-    9. FLAGS SYSTEM
-    10. UTILITY FUNCTIONS
+    Toggle Key: H (default)
     
-================================================================================
-    1. GETTING STARTED
-================================================================================
-
-    To use Lieris UI Library, load it using loadstring:
-    
-    local Lieris = loadstring(game:HttpGet("YOUR_RAW_URL_HERE"))()
-    
-    Or if you have the file locally:
-    
-    local Lieris = loadstring(readfile("Lieris.lua"))()
-
-================================================================================
-    2. CREATING A WINDOW
-================================================================================
-
-    The Window is the main container for your entire UI.
-    
-    SYNTAX:
-        local Window = Lieris:CreateWindow(options)
-    
-    OPTIONS TABLE:
-        Name            : string    - The title displayed in the window header
-        ConfigFolder    : string    - Folder name for saving configurations
-        SaveConfig      : boolean   - Enable auto-save functionality
-        
-    EXAMPLE:
-        local Window = Lieris:CreateWindow({
-            Name = "My Script Hub",
-            ConfigFolder = "MyScriptConfigs",
-            SaveConfig = true
-        })
-    
-    WINDOW METHODS:
-        Window:ToggleUI()           - Toggle window visibility
-        Window:SetVisible(bool)     - Set window visibility explicitly
-        Window:Destroy()            - Completely remove the UI
-
-================================================================================
-    3. CREATING TABS
-================================================================================
-
-    Tabs organize your UI into different pages/categories.
-    
-    SYNTAX:
-        local Tab = Window:CreateTab(options)
-    
-    OPTIONS TABLE:
-        Name    : string    - The name displayed on the tab button
-        Icon    : string    - Asset ID for the tab icon (optional)
-        
-    EXAMPLE:
-        local MainTab = Window:CreateTab({
-            Name = "Main",
-            Icon = "rbxassetid://102267096559735"
-        })
-        
-        local SettingsTab = Window:CreateTab({
-            Name = "Settings"
-        })
-
-================================================================================
-    4. CREATING SECTIONS
-================================================================================
-
-    Sections group related elements within a tab.
-    
-    SYNTAX:
-        local Section = Tab:CreateSection(sectionName)
-    
-    PARAMETERS:
-        sectionName : string    - The header text for the section
-        
-    EXAMPLE:
-        local CombatSection = MainTab:CreateSection("Combat Features")
-        local VisualsSection = MainTab:CreateSection("Visual Settings")
-
-================================================================================
-    5. UI ELEMENTS
-================================================================================
-
---------------------------------------------------------------------------------
-    5.1 BUTTON
---------------------------------------------------------------------------------
-    Creates a clickable button that executes a callback function.
-    
-    SYNTAX:
-        Section:CreateButton(options)
-    
-    OPTIONS TABLE:
-        Name        : string    - Button display text
-        Callback    : function  - Function called when button is clicked
-        
-    EXAMPLE:
-        Section:CreateButton({
-            Name = "Kill All Enemies",
-            Callback = function()
-                print("Button clicked!")
-                -- Your code here
-            end
-        })
-
---------------------------------------------------------------------------------
-    5.2 TOGGLE
---------------------------------------------------------------------------------
-    Creates an on/off switch with state persistence.
-    
-    SYNTAX:
-        local Toggle = Section:CreateToggle(options)
-    
-    OPTIONS TABLE:
-        Name        : string    - Toggle display text
-        Default     : boolean   - Initial state (true/false)
-        Flag        : string    - Unique identifier for config saving
-        Callback    : function  - Called when toggle state changes
-        
-    RETURNS:
-        Toggle object with methods:
-            Toggle:Set(boolean)     - Set toggle state programmatically
-            Toggle:Get()            - Get current toggle state
-        
-    EXAMPLE:
-        local GodMode = Section:CreateToggle({
-            Name = "God Mode",
-            Default = false,
-            Flag = "GodModeEnabled",
-            Callback = function(Value)
-                print("God Mode:", Value)
-                -- Enable/disable god mode based on Value
-            end
-        })
-        
-        -- Later in code:
-        GodMode:Set(true)
-        print(GodMode:Get())
-
---------------------------------------------------------------------------------
-    5.3 SLIDER
---------------------------------------------------------------------------------
-    Creates a draggable slider for numeric value selection.
-    
-    SYNTAX:
-        local Slider = Section:CreateSlider(options)
-    
-    OPTIONS TABLE:
-        Name        : string    - Slider display text
-        Min         : number    - Minimum value
-        Max         : number    - Maximum value
-        Default     : number    - Initial value
-        Increment   : number    - Step increment (default: 1)
-        Flag        : string    - Unique identifier for config saving
-        Callback    : function  - Called when value changes
-        
-    RETURNS:
-        Slider object with methods:
-            Slider:Set(number)      - Set slider value programmatically
-            Slider:Get()            - Get current slider value
-        
-    EXAMPLE:
-        local SpeedSlider = Section:CreateSlider({
-            Name = "Walk Speed",
-            Min = 16,
-            Max = 500,
-            Default = 16,
-            Increment = 1,
-            Flag = "WalkSpeedValue",
-            Callback = function(Value)
-                game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-            end
-        })
-
---------------------------------------------------------------------------------
-    5.4 DROPDOWN
---------------------------------------------------------------------------------
-    Creates a dropdown menu for selecting from a list of options.
-    
-    SYNTAX:
-        local Dropdown = Section:CreateDropdown(options)
-    
-    OPTIONS TABLE:
-        Name        : string    - Dropdown display text
-        Options     : table     - Array of option strings
-        Default     : string    - Initially selected option
-        Multi       : boolean   - Allow multiple selections (default: false)
-        Flag        : string    - Unique identifier for config saving
-        Callback    : function  - Called when selection changes
-        
-    RETURNS:
-        Dropdown object with methods:
-            Dropdown:Set(string/table)  - Set selection programmatically
-            Dropdown:Get()              - Get current selection
-            Dropdown:Refresh(table)     - Update options list
-            Dropdown:Add(string)        - Add new option
-            Dropdown:Remove(string)     - Remove an option
-        
-    EXAMPLE:
-        local TeamDropdown = Section:CreateDropdown({
-            Name = "Select Team",
-            Options = {"Red Team", "Blue Team", "Green Team"},
-            Default = "Red Team",
-            Flag = "SelectedTeam",
-            Callback = function(Value)
-                print("Selected:", Value)
-            end
-        })
-        
-        -- Multi-select example:
-        local WeaponsDropdown = Section:CreateDropdown({
-            Name = "Select Weapons",
-            Options = {"Pistol", "Rifle", "Shotgun", "Sniper"},
-            Multi = true,
-            Flag = "SelectedWeapons",
-            Callback = function(Values)
-                for weapon, enabled in pairs(Values) do
-                    print(weapon, ":", enabled)
-                end
-            end
-        })
-
---------------------------------------------------------------------------------
-    5.5 INPUT (TEXTBOX)
---------------------------------------------------------------------------------
-    Creates a text input field.
-    
-    SYNTAX:
-        local Input = Section:CreateInput(options)
-    
-    OPTIONS TABLE:
-        Name            : string    - Input display text
-        Default         : string    - Initial text value
-        PlaceholderText : string    - Placeholder when empty
-        Numeric         : boolean   - Only allow numbers (default: false)
-        Finished        : boolean   - Only fire callback on enter (default: true)
-        Flag            : string    - Unique identifier for config saving
-        Callback        : function  - Called when text changes/submits
-        
-    RETURNS:
-        Input object with methods:
-            Input:Set(string)       - Set text programmatically
-            Input:Get()             - Get current text value
-        
-    EXAMPLE:
-        local PlayerInput = Section:CreateInput({
-            Name = "Target Player",
-            Default = "",
-            PlaceholderText = "Enter username...",
-            Flag = "TargetPlayer",
-            Callback = function(Text)
-                print("Targeting:", Text)
-            end
-        })
-
---------------------------------------------------------------------------------
-    5.6 KEYBIND
---------------------------------------------------------------------------------
-    Creates a customizable keyboard shortcut binding.
-    
-    SYNTAX:
-        local Keybind = Section:CreateKeybind(options)
-    
-    OPTIONS TABLE:
-        Name        : string            - Keybind display text
-        Default     : Enum.KeyCode      - Default key binding
-        Hold        : boolean           - Require holding (default: false)
-        Flag        : string            - Unique identifier for config saving
-        Callback    : function          - Called when key is pressed
-        ChangedCallback : function      - Called when keybind is changed
-        
-    RETURNS:
-        Keybind object with methods:
-            Keybind:Set(Enum.KeyCode)   - Set keybind programmatically
-            Keybind:Get()               - Get current keybind
-        
-    EXAMPLE:
-        local TeleportKey = Section:CreateKeybind({
-            Name = "Teleport Hotkey",
-            Default = Enum.KeyCode.T,
-            Hold = false,
-            Flag = "TeleportKeybind",
-            Callback = function()
-                print("Teleport activated!")
-            end,
-            ChangedCallback = function(New)
-                print("Keybind changed to:", New.Name)
-            end
-        })
-
---------------------------------------------------------------------------------
-    5.7 COLOR PICKER
---------------------------------------------------------------------------------
-    Creates a color selection interface.
-    
-    SYNTAX:
-        local ColorPicker = Section:CreateColorPicker(options)
-    
-    OPTIONS TABLE:
-        Name        : string    - Color picker display text
-        Default     : Color3    - Initial color value
-        Flag        : string    - Unique identifier for config saving
-        Callback    : function  - Called when color changes
-        
-    RETURNS:
-        ColorPicker object with methods:
-            ColorPicker:Set(Color3)     - Set color programmatically
-            ColorPicker:Get()           - Get current color value
-        
-    EXAMPLE:
-        local ESPColor = Section:CreateColorPicker({
-            Name = "ESP Color",
-            Default = Color3.fromRGB(255, 0, 0),
-            Flag = "ESPColorValue",
-            Callback = function(Color)
-                print("New color:", Color.R, Color.G, Color.B)
-            end
-        })
-
---------------------------------------------------------------------------------
-    5.8 LABEL
---------------------------------------------------------------------------------
-    Creates a simple text label for information display.
-    
-    SYNTAX:
-        local Label = Section:CreateLabel(text)
-    
-    RETURNS:
-        Label object with methods:
-            Label:Set(string)       - Update label text
-            Label:Get()             - Get current label text
-        
-    EXAMPLE:
-        local StatusLabel = Section:CreateLabel("Status: Ready")
-        
-        -- Update later:
-        StatusLabel:Set("Status: Running")
-
---------------------------------------------------------------------------------
-    5.9 PARAGRAPH
---------------------------------------------------------------------------------
-    Creates a multi-line text block for descriptions.
-    
-    SYNTAX:
-        local Paragraph = Section:CreateParagraph(options)
-    
-    OPTIONS TABLE:
-        Title   : string    - Paragraph header text
-        Content : string    - Main paragraph content
-        
-    RETURNS:
-        Paragraph object with methods:
-            Paragraph:Set(options)  - Update paragraph content
-        
-    EXAMPLE:
-        Section:CreateParagraph({
-            Title = "About This Script",
-            Content = "This script provides various features for enhanced gameplay. Use responsibly and enjoy!"
-        })
-
---------------------------------------------------------------------------------
-    5.10 DIVIDER
---------------------------------------------------------------------------------
-    Creates a visual separator line between elements.
-    
-    SYNTAX:
-        Section:CreateDivider()
-        
-    EXAMPLE:
-        Section:CreateButton({Name = "Button 1", Callback = function() end})
-        Section:CreateDivider()
-        Section:CreateButton({Name = "Button 2", Callback = function() end})
-
-================================================================================
-    6. NOTIFICATIONS
-================================================================================
-
-    Display toast notifications to the user.
-    
-    SYNTAX:
-        Lieris:Notify(options)
-    
-    OPTIONS TABLE:
-        Title       : string    - Notification header
-        Content     : string    - Notification message
-        Duration    : number    - Display time in seconds (default: 3)
-        Icon        : string    - Asset ID for icon (optional)
-        Type        : string    - "Info", "Success", "Error", "Warning"
-        
-    EXAMPLE:
-        Lieris:Notify({
-            Title = "Success",
-            Content = "Configuration saved successfully!",
-            Duration = 5,
-            Type = "Success",
-            Icon = Lieris.Icons.Document
-        })
-
-================================================================================
-    7. CONFIG SYSTEM
-================================================================================
-
-    Save and load user configurations automatically.
-    
-    SAVE CONFIG:
-        Lieris:SaveConfig(configName)
-        
-    LOAD CONFIG:
-        Lieris:LoadConfig(configName)
-        
-    GET CONFIGS:
-        local configs = Lieris:GetConfigs()
-        
-    DELETE CONFIG:
-        Lieris:DeleteConfig(configName)
-        
-    EXAMPLE:
-        -- Save current settings
-        Lieris:SaveConfig("MySettings")
-        
-        -- Load saved settings
-        Lieris:LoadConfig("MySettings")
-        
-        -- Get all saved configs
-        for _, name in ipairs(Lieris:GetConfigs()) do
-            print("Found config:", name)
-        end
-
-================================================================================
-    8. THEME CUSTOMIZATION
-================================================================================
-
-    Customize the UI appearance through the Colors table.
-    
-    AVAILABLE COLORS:
-        Lieris.Colors.Main          - Main background color
-        Lieris.Colors.Secondary     - Secondary elements color
-        Lieris.Colors.Accent1       - Primary accent (Blue)
-        Lieris.Colors.Accent2       - Secondary accent (Purple)
-        Lieris.Colors.Text          - Primary text color
-        Lieris.Colors.TextDark      - Secondary text color
-        Lieris.Colors.Outline       - Border/outline color
-        
-    EXAMPLE:
-        Lieris.Colors.Accent1 = Color3.fromRGB(255, 0, 128)
-        Lieris.Colors.Accent2 = Color3.fromRGB(128, 0, 255)
-
-================================================================================
-    9. FLAGS SYSTEM
-================================================================================
-
-    Access element values globally through the Flags table.
-    
-    USAGE:
-        -- After creating a toggle with Flag = "MyToggle"
-        print(Lieris.Flags.MyToggle)  -- true or false
-        
-        -- After creating a slider with Flag = "MySlider"
-        print(Lieris.Flags.MySlider)  -- current number value
-        
-    This is useful for accessing values from different parts of your script
-    without needing to store references to each element.
-
-================================================================================
-    10. UTILITY FUNCTIONS
-================================================================================
-
-    TOGGLE UI:
-        Lieris:ToggleUI()   - Toggle the entire UI visibility
-        
-    DESTROY:
-        Lieris:Destroy()    - Remove all UI elements completely
-
-================================================================================
-    FULL EXAMPLE SCRIPT
-================================================================================
-
-    local Lieris = loadstring(game:HttpGet("URL_HERE"))()
-    
-    local Window = Lieris:CreateWindow({
-        Name = "Example Script",
-        ConfigFolder = "ExampleConfigs"
-    })
-    
-    local MainTab = Window:CreateTab({
-        Name = "Main",
-        Icon = Lieris.Icons.Star
-    })
-    
-    local CombatSection = MainTab:CreateSection("Combat")
-    
-    CombatSection:CreateToggle({
-        Name = "Kill Aura",
-        Default = false,
-        Flag = "KillAura",
-        Callback = function(Value)
-            -- Kill aura logic
-        end
-    })
-    
-    CombatSection:CreateSlider({
-        Name = "Attack Range",
-        Min = 5,
-        Max = 50,
-        Default = 15,
-        Flag = "AttackRange",
-        Callback = function(Value)
-            -- Update attack range
-        end
-    })
-    
-    local SettingsTab = Window:CreateTab({
-        Name = "Settings",
-        Icon = Lieris.Icons.Settings
-    })
-    
-    local ConfigSection = SettingsTab:CreateSection("Configuration")
-    
-    ConfigSection:CreateButton({
-        Name = "Save Settings",
-        Callback = function()
-            Lieris:SaveConfig("default")
-            Lieris:Notify({
-                Title = "Saved",
-                Content = "Settings saved successfully!",
-                Type = "Success"
-            })
-        end
-    })
-
-================================================================================
-    END OF DOCUMENTATION
+    Features:
+    - Tabs and Sections
+    - Buttons, Toggles, Sliders
+    - Dropdowns, Inputs, Keybinds
+    - Color Picker with Confirm
+    - Config Save/Load System
+    - Notifications
+    - Smooth Animations
 ================================================================================
 ]]
-
--- ============================================================================
--- LIBRARY INITIALIZATION
--- ============================================================================
 
 local Lieris = {}
 Lieris.Flags = {}
@@ -572,341 +22,106 @@ Lieris.ConfigFolder = "LierisConfigs"
 Lieris.CurrentConfig = "default"
 Lieris._callbacks = {}
 Lieris._elements = {}
+Lieris.ToggleKey = Enum.KeyCode.H
 
--- ============================================================================
--- SERVICES
--- ============================================================================
-
+-- Services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
-local TextService = game:GetService("TextService")
 
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
 
--- ============================================================================
--- ASSETS
--- ============================================================================
-
+-- Asset IDs
 local Assets = {
     Background = "rbxassetid://120912477451723",
     Logo = "rbxassetid://93564507432615",
     CloseButton = "rbxassetid://75618206104636",
     MinimizeButton = "rbxassetid://95966901348174",
-    Font = Enum.Font.Gotham,
-    FontBold = Enum.Font.GothamBold,
-    FontSemiBold = Enum.Font.GothamSemibold,
-    
-    Icons = {
-        -- Navigation
-        Home = "rbxassetid://92707187440072",
-        
-        -- Arrows
-        ArrowUp = "rbxassetid://86798019032056",
-        ArrowDown = "rbxassetid://95371614437264",
-        ArrowLeft = "rbxassetid://73627730802442",
-        ArrowRight = "rbxassetid://78259254071491",
-        
-        -- Actions
-        Paw = "rbxassetid://132774784825596",
-        Edit = "rbxassetid://79102469506206",
-        Undo = "rbxassetid://108718392331342",
-        Trash = "rbxassetid://120799379418283",
-        Plus = "rbxassetid://113292455067178",
-        Resize = "rbxassetid://100459617281310",
-        Fullscreen = "rbxassetid://140212636469024",
-        
-        -- Status
-        Star = "rbxassetid://92707187440072",
-        StarHalf = "rbxassetid://108853802570915",
-        Heart = "rbxassetid://86525383749807",
-        Crown = "rbxassetid://126259774551591",
-        
-        -- Alerts
-        Alert = "rbxassetid://129002225813257",
-        Info = "rbxassetid://72675213757354",
-        Question = "rbxassetid://136925848170066",
-        
-        -- System
-        Settings = "rbxassetid://102267096559735",
-        Key = "rbxassetid://124296337565532",
-        Padlock = "rbxassetid://101648628065104",
-        Shield = "rbxassetid://85965347730498",
-        Eye = "rbxassetid://125020341331789",
-        
-        -- Files
-        Document = "rbxassetid://101184153582665",
-        Folder = "rbxassetid://127886922473441",
-        Database = "rbxassetid://139502699163631",
-        List = "rbxassetid://97543050372859",
-        
-        -- Combat
-        Gun = "rbxassetid://131253277679602",
-        Rifle = "rbxassetid://92276134372777",
-        Target = "rbxassetid://131253277679602",
-        
-        -- Finance
-        Dollar = "rbxassetid://99027619708694",
-        Briefcase = "rbxassetid://138340962857599",
-        
-        -- Nature
-        Flame = "rbxassetid://73806373761889",
-        Lightning = "rbxassetid://113425277383163",
-        Cloud = "rbxassetid://109550289152072",
-        
-        -- Tech
-        Brain = "rbxassetid://84614763334611",
-        Camera = "rbxassetid://125788738236572",
-        Discord = "rbxassetid://89700473399405",
-        Code = "rbxassetid://84614763334611",
-        
-        -- Time
-        Time = "rbxassetid://92180740914957",
-        
-        -- Player
-        Player = "rbxassetid://85965347730498",
-        
-        -- Misc
-        Misc = "rbxassetid://102267096559735",
-        
-        -- UI Controls
-        Check = "rbxassetid://93564507432615",
-        Cross = "rbxassetid://75618206104636",
-    }
 }
 
--- ============================================================================
--- COLORS
--- ============================================================================
-
+-- Colors (Black, White, Blue, Purple theme)
 local Colors = {
-    Main = Color3.fromRGB(8, 8, 12),
-    Secondary = Color3.fromRGB(14, 14, 20),
-    Tertiary = Color3.fromRGB(22, 22, 32),
-    Accent1 = Color3.fromRGB(80, 120, 255),
-    Accent2 = Color3.fromRGB(150, 80, 255),
-    Text = Color3.fromRGB(250, 250, 255),
-    TextDark = Color3.fromRGB(150, 150, 175),
-    TextDarker = Color3.fromRGB(100, 100, 125),
-    Outline = Color3.fromRGB(35, 35, 50),
-    Success = Color3.fromRGB(80, 220, 140),
+    Background = Color3.fromRGB(12, 12, 18),
+    BackgroundDark = Color3.fromRGB(8, 8, 12),
+    Surface = Color3.fromRGB(18, 18, 26),
+    SurfaceLight = Color3.fromRGB(28, 28, 38),
+    SurfaceHover = Color3.fromRGB(35, 35, 48),
+    
+    Accent = Color3.fromRGB(90, 120, 255),
+    AccentDark = Color3.fromRGB(70, 95, 200),
+    AccentLight = Color3.fromRGB(120, 150, 255),
+    
+    Purple = Color3.fromRGB(140, 90, 255),
+    PurpleDark = Color3.fromRGB(110, 70, 200),
+    PurpleLight = Color3.fromRGB(170, 130, 255),
+    
+    Text = Color3.fromRGB(255, 255, 255),
+    TextDim = Color3.fromRGB(180, 180, 195),
+    TextDark = Color3.fromRGB(120, 120, 140),
+    
+    Border = Color3.fromRGB(50, 50, 70),
+    BorderLight = Color3.fromRGB(70, 70, 95),
+    
+    Glow = Color3.fromRGB(90, 120, 255),
+    GlowPurple = Color3.fromRGB(140, 90, 255),
+    
+    Success = Color3.fromRGB(80, 200, 120),
     Error = Color3.fromRGB(255, 90, 90),
     Warning = Color3.fromRGB(255, 190, 70),
-    Glow = Color3.fromRGB(100, 140, 255),
 }
 
--- ============================================================================
--- UTILITY FUNCTIONS
--- ============================================================================
-
-local function Create(class, properties)
-    local instance = Instance.new(class)
-    for k, v in pairs(properties) do
+-- Simple Create function
+local function Create(class, props)
+    local inst = Instance.new(class)
+    for k, v in pairs(props) do
         if k ~= "Parent" then
-            instance[k] = v
+            inst[k] = v
         end
     end
-    if properties.Parent then
-        instance.Parent = properties.Parent
+    if props.Parent then
+        inst.Parent = props.Parent
     end
-    return instance
+    return inst
 end
 
-local function Tween(instance, properties, duration, easingStyle, easingDirection)
-    local info = TweenInfo.new(
-        duration or 0.2,
-        easingStyle or Enum.EasingStyle.Quint,
-        easingDirection or Enum.EasingDirection.Out
-    )
-    local tween = TweenService:Create(instance, info, properties)
+-- Simple Tween
+local function Tween(obj, props, time)
+    time = time or 0.15
+    local tween = TweenService:Create(obj, TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props)
     tween:Play()
     return tween
 end
 
-local function TweenSmooth(instance, properties, duration)
-    local info = TweenInfo.new(
-        duration or 0.35,
-        Enum.EasingStyle.Exponential,
-        Enum.EasingDirection.Out
-    )
-    local tween = TweenService:Create(instance, info, properties)
-    tween:Play()
-    return tween
-end
-
-local function TweenBounce(instance, properties, duration)
-    local info = TweenInfo.new(
-        duration or 0.4,
-        Enum.EasingStyle.Back,
-        Enum.EasingDirection.Out
-    )
-    local tween = TweenService:Create(instance, info, properties)
-    tween:Play()
-    return tween
-end
-
-local function AddCorner(parent, radius)
+-- Add corner
+local function Corner(parent, radius)
     return Create("UICorner", {
-        CornerRadius = radius or UDim.new(0, 8),
+        CornerRadius = UDim.new(0, radius or 6),
         Parent = parent
     })
 end
 
-local function AddStroke(parent, color, thickness, transparency)
+-- Add stroke
+local function Stroke(parent, color, thickness)
     return Create("UIStroke", {
-        Color = color or Colors.Outline,
+        Color = color or Colors.Border,
         Thickness = thickness or 1,
-        Transparency = transparency or 0,
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
         Parent = parent
     })
 end
 
-local function AddGradient(parent, color1, color2, rotation)
-    return Create("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, color1 or Colors.Accent1),
-            ColorSequenceKeypoint.new(1, color2 or Colors.Accent2)
-        }),
-        Rotation = rotation or 45,
-        Parent = parent
-    })
-end
-
-local function AddPadding(parent, top, bottom, left, right)
-    return Create("UIPadding", {
-        PaddingTop = UDim.new(0, top or 0),
-        PaddingBottom = UDim.new(0, bottom or top or 0),
-        PaddingLeft = UDim.new(0, left or top or 0),
-        PaddingRight = UDim.new(0, right or left or top or 0),
-        Parent = parent
-    })
-end
-
-local function AddShadow(parent, transparency)
-    local shadow = Create("ImageLabel", {
-        Name = "Shadow",
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0.5, 0, 0.5, 6),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(1, 50, 1, 50),
-        ZIndex = parent.ZIndex - 1,
-        Image = "rbxassetid://5028857084",
-        ImageColor3 = Color3.new(0, 0, 0),
-        ImageTransparency = transparency or 0.5,
-        Parent = parent
-    })
-    return shadow
-end
-
-local function AddGlow(parent, color, size, transparency)
-    local glow = Create("ImageLabel", {
-        Name = "Glow",
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(1, size or 30, 1, size or 30),
-        ZIndex = 0,
-        Image = "rbxassetid://5028857084",
-        ImageColor3 = color or Colors.Accent1,
-        ImageTransparency = transparency or 0.85,
-        Parent = parent
-    })
-    return glow
-end
-
-local function MakeDraggable(frame, dragHandle)
-    local dragging, dragInput, dragStart, startPos
-    
-    local function Update(input)
-        local delta = input.Position - dragStart
-        local newPos = UDim2.new(
-            startPos.X.Scale, 
-            startPos.X.Offset + delta.X, 
-            startPos.Y.Scale, 
-            startPos.Y.Offset + delta.Y
-        )
-        Tween(frame, {Position = newPos}, 0.08)
-    end
-    
-    dragHandle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-    
-    dragHandle.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            Update(input)
-        end
-    end)
-end
-
-local function CreateRipple(parent, position)
-    local ripple = Create("Frame", {
-        Name = "Ripple",
-        BackgroundColor3 = Colors.Text,
-        BackgroundTransparency = 0.8,
-        Position = position or UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(0, 0, 0, 0),
-        ZIndex = parent.ZIndex + 5,
-        Parent = parent
-    })
-    AddCorner(ripple, UDim.new(1, 0))
-    
-    local maxSize = math.max(parent.AbsoluteSize.X, parent.AbsoluteSize.Y) * 2.8
-    
-    TweenSmooth(ripple, {Size = UDim2.new(0, maxSize, 0, maxSize), BackgroundTransparency = 1}, 0.6)
-    
-    task.delay(0.6, function()
-        if ripple then
-            ripple:Destroy()
-        end
-    end)
-end
-
-local function CreatePulse(element, color)
-    local originalColor = element.BackgroundColor3
-    Tween(element, {BackgroundColor3 = color or Colors.Accent1}, 0.1)
-    task.delay(0.1, function()
-        TweenSmooth(element, {BackgroundColor3 = originalColor}, 0.3)
-    end)
-end
-
--- ============================================================================
--- CONFIG SYSTEM
--- ============================================================================
-
-local function EnsureConfigFolder()
-    if not isfolder then return false end
-    if not isfolder(Lieris.ConfigFolder) then
+-- Config System
+local function EnsureFolder()
+    if isfolder and not isfolder(Lieris.ConfigFolder) then
         makefolder(Lieris.ConfigFolder)
     end
-    return true
 end
 
 function Lieris:SaveConfig(name)
     name = name or self.CurrentConfig
-    if not EnsureConfigFolder() then return false end
+    EnsureFolder()
     
     local data = {}
     for flag, value in pairs(self.Flags) do
@@ -914,8 +129,6 @@ function Lieris:SaveConfig(name)
             data[flag] = {Type = "Color3", R = value.R, G = value.G, B = value.B}
         elseif typeof(value) == "EnumItem" then
             data[flag] = {Type = "EnumItem", EnumType = tostring(value.EnumType), Name = value.Name}
-        elseif typeof(value) == "table" then
-            data[flag] = {Type = "Table", Value = value}
         else
             data[flag] = {Type = typeof(value), Value = value}
         end
@@ -925,28 +138,20 @@ function Lieris:SaveConfig(name)
         return HttpService:JSONEncode(data)
     end)
     
-    if not success then return false end
-    
-    local path = self.ConfigFolder .. "/" .. name .. ".json"
-    
-    local writeSuccess = pcall(function()
-        writefile(path, json)
-    end)
-    
-    return writeSuccess
+    if success and writefile then
+        pcall(function()
+            writefile(self.ConfigFolder .. "/" .. name .. ".json", json)
+        end)
+        return true
+    end
+    return false
 end
 
 function Lieris:LoadConfig(name)
     name = name or self.CurrentConfig
-    if not EnsureConfigFolder() then return false end
     
     local path = self.ConfigFolder .. "/" .. name .. ".json"
-    
-    local exists = pcall(function()
-        return isfile(path)
-    end)
-    
-    if not exists then return false end
+    if not isfile or not isfile(path) then return false end
     
     local success, content = pcall(function()
         return readfile(path)
@@ -954,32 +159,18 @@ function Lieris:LoadConfig(name)
     
     if not success then return false end
     
-    local decodeSuccess, data = pcall(function()
-        return HttpService:JSONDecode(content)
-    end)
-    
-    if not decodeSuccess then return false end
+    local data = HttpService:JSONDecode(content)
     
     for flag, info in pairs(data) do
         if info.Type == "Color3" then
             self.Flags[flag] = Color3.new(info.R, info.G, info.B)
         elseif info.Type == "EnumItem" then
-            pcall(function()
-                self.Flags[flag] = Enum[info.EnumType][info.Name]
-            end)
-        elseif info.Type == "Table" then
-            self.Flags[flag] = info.Value
+            self.Flags[flag] = Enum[info.EnumType][info.Name]
         else
             self.Flags[flag] = info.Value
         end
         
-        if self._callbacks and self._callbacks[flag] then
-            pcall(function()
-                self._callbacks[flag](self.Flags[flag])
-            end)
-        end
-        
-        if self._elements and self._elements[flag] and self._elements[flag].Set then
+        if self._elements[flag] then
             pcall(function()
                 self._elements[flag]:Set(self.Flags[flag])
             end)
@@ -990,1057 +181,747 @@ function Lieris:LoadConfig(name)
 end
 
 function Lieris:GetConfigs()
-    if not EnsureConfigFolder() then return {} end
-    
+    EnsureFolder()
     local configs = {}
-    local success, files = pcall(function()
-        return listfiles(Lieris.ConfigFolder)
-    end)
     
-    if not success then return {} end
-    
-    for _, file in ipairs(files) do
-        if file:match("%.json$") then
-            local name = file:match("([^/\\]+)%.json$")
-            table.insert(configs, name)
+    if listfiles then
+        for _, file in ipairs(listfiles(self.ConfigFolder)) do
+            if file:match("%.json$") then
+                local name = file:match("([^/\\]+)%.json$")
+                if name then
+                    table.insert(configs, name)
+                end
+            end
         end
     end
+    
     return configs
 end
 
 function Lieris:DeleteConfig(name)
-    if not EnsureConfigFolder() then return false end
-    
-    local path = self.ConfigFolder .. "/" .. name .. ".json"
-    
-    local success = pcall(function()
-        if isfile(path) then
-            delfile(path)
-        end
-    end)
-    
-    return success
+    if delfile then
+        pcall(function()
+            delfile(self.ConfigFolder .. "/" .. name .. ".json")
+        end)
+        return true
+    end
+    return false
 end
 
--- ============================================================================
--- NOTIFICATION SYSTEM
--- ============================================================================
-
-local NotificationHolder
+-- Notification System (Simple, non-intrusive)
+local NotifyGui, NotifyHolder
 
 function Lieris:Notify(options)
     options = options or {}
     local Title = options.Title or "Notification"
     local Content = options.Content or ""
     local Duration = options.Duration or 3
-    local Icon = options.Icon or Assets.Icons.Info
     local Type = options.Type or "Info"
     
-    local accentColor = Colors.Accent1
-    if Type == "Success" then
-        accentColor = Colors.Success
-    elseif Type == "Error" then
-        accentColor = Colors.Error
-    elseif Type == "Warning" then
-        accentColor = Colors.Warning
-    end
+    local color = Colors.Accent
+    if Type == "Success" then color = Colors.Success
+    elseif Type == "Error" then color = Colors.Error
+    elseif Type == "Warning" then color = Colors.Warning end
     
-    if not NotificationHolder then
-        local NotificationGui = Create("ScreenGui", {
-            Name = "LierisNotifications",
+    if not NotifyGui then
+        NotifyGui = Create("ScreenGui", {
+            Name = "LierisNotify",
             ResetOnSpawn = false,
-            DisplayOrder = 999,
-            ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            DisplayOrder = 1000
         })
+        pcall(function() NotifyGui.Parent = CoreGui end)
+        if not NotifyGui.Parent then NotifyGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
         
-        local success = pcall(function()
-            NotificationGui.Parent = CoreGui
-        end)
-        if not success then
-            NotificationGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-        end
-        
-        NotificationHolder = Create("Frame", {
-            Name = "NotifyHolder",
+        NotifyHolder = Create("Frame", {
             BackgroundTransparency = 1,
-            Position = UDim2.new(1, -25, 1, -25),
+            Position = UDim2.new(1, -15, 1, -15),
             AnchorPoint = Vector2.new(1, 1),
-            Size = UDim2.new(0, 340, 1, -50),
-            Parent = NotificationGui
+            Size = UDim2.new(0, 280, 0, 400),
+            Parent = NotifyGui
         })
         
         Create("UIListLayout", {
-            Parent = NotificationHolder,
             SortOrder = Enum.SortOrder.LayoutOrder,
-            Padding = UDim.new(0, 12),
-            HorizontalAlignment = Enum.HorizontalAlignment.Right,
-            VerticalAlignment = Enum.VerticalAlignment.Bottom
+            VerticalAlignment = Enum.VerticalAlignment.Bottom,
+            Padding = UDim.new(0, 8),
+            Parent = NotifyHolder
         })
     end
     
-    local Notification = Create("Frame", {
-        Name = "Notification",
-        BackgroundColor3 = Colors.Secondary,
+    local Notif = Create("Frame", {
+        BackgroundColor3 = Colors.Surface,
         Size = UDim2.new(1, 0, 0, 0),
         ClipsDescendants = true,
-        Parent = NotificationHolder
+        Parent = NotifyHolder
     })
-    AddCorner(Notification, UDim.new(0, 12))
-    AddStroke(Notification, accentColor, 1, 0.4)
-    AddShadow(Notification, 0.65)
+    Corner(Notif, 8)
+    Stroke(Notif, color)
     
-    local AccentLine = Create("Frame", {
-        Name = "Accent",
-        BackgroundColor3 = accentColor,
-        Size = UDim2.new(0, 4, 1, 0),
-        Parent = Notification
+    Create("Frame", {
+        BackgroundColor3 = color,
+        Size = UDim2.new(0, 3, 1, 0),
+        BorderSizePixel = 0,
+        Parent = Notif
     })
-    AddCorner(AccentLine, UDim.new(0, 2))
-    
-    if Icon then
-        Create("ImageLabel", {
-            Name = "Icon",
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0, 16, 0, 16),
-            Size = UDim2.new(0, 30, 0, 30),
-            Image = Icon,
-            ImageColor3 = accentColor,
-            Parent = Notification
-        })
-    end
     
     Create("TextLabel", {
-        Name = "Title",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, Icon and 58 or 22, 0, 14),
-        Size = UDim2.new(1, Icon and -70 or -34, 0, 22),
-        Font = Assets.FontBold,
+        Position = UDim2.new(0, 15, 0, 10),
+        Size = UDim2.new(1, -25, 0, 18),
+        Font = Enum.Font.GothamBold,
         Text = Title,
         TextColor3 = Colors.Text,
-        TextSize = 15,
+        TextSize = 13,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = Notification
+        Parent = Notif
     })
     
     Create("TextLabel", {
-        Name = "Content",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, Icon and 58 or 22, 0, 38),
-        Size = UDim2.new(1, Icon and -70 or -34, 0, 42),
-        Font = Assets.Font,
+        Position = UDim2.new(0, 15, 0, 30),
+        Size = UDim2.new(1, -25, 0, 30),
+        Font = Enum.Font.Gotham,
         Text = Content,
-        TextColor3 = Colors.TextDark,
-        TextSize = 13,
+        TextColor3 = Colors.TextDim,
+        TextSize = 12,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top,
         TextWrapped = true,
-        Parent = Notification
+        Parent = Notif
     })
     
-    local ProgressBar = Create("Frame", {
-        Name = "Progress",
-        BackgroundColor3 = accentColor,
-        BackgroundTransparency = 0.4,
-        Position = UDim2.new(0, 0, 1, -4),
-        Size = UDim2.new(1, 0, 0, 4),
-        Parent = Notification
-    })
-    AddCorner(ProgressBar, UDim.new(0, 2))
+    Tween(Notif, {Size = UDim2.new(1, 0, 0, 68)}, 0.2)
     
-    TweenBounce(Notification, {Size = UDim2.new(1, 0, 0, 90)}, 0.35)
-    
-    task.delay(0.35, function()
-        TweenSmooth(ProgressBar, {Size = UDim2.new(0, 0, 0, 4)}, Duration)
-    end)
-    
-    task.delay(Duration + 0.35, function()
-        TweenSmooth(Notification, {Size = UDim2.new(1, 0, 0, 0), BackgroundTransparency = 1}, 0.3)
-        task.delay(0.25, function()
-            if Notification then
-                Notification:Destroy()
-            end
+    task.delay(Duration, function()
+        Tween(Notif, {Size = UDim2.new(1, 0, 0, 0)}, 0.2)
+        task.delay(0.2, function()
+            Notif:Destroy()
         end)
     end)
 end
 
--- ============================================================================
--- MAIN WINDOW
--- ============================================================================
-
+-- Main Window
 function Lieris:CreateWindow(options)
     options = options or {}
-    local Name = options.Name or "Lieris UI"
+    local Title = options.Name or options.Title or "Lieris"
     local ConfigFolder = options.ConfigFolder or "LierisConfigs"
     
     Lieris.ConfigFolder = ConfigFolder
-    EnsureConfigFolder()
+    EnsureFolder()
+    
+    -- Remember position
+    local savedPos = nil
     
     local ScreenGui = Create("ScreenGui", {
-        Name = "LierisUI_" .. HttpService:GenerateGUID(false),
+        Name = "LierisUI",
         ResetOnSpawn = false,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         DisplayOrder = 100
     })
+    pcall(function() ScreenGui.Parent = CoreGui end)
+    if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
     
-    local success = pcall(function()
-        ScreenGui.Parent = CoreGui
-    end)
-    if not success then
-        ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    end
-    
-    local MainFrame = Create("ImageLabel", {
-        Name = "MainFrame",
-        BackgroundColor3 = Colors.Main,
-        Position = UDim2.new(0.5, -375, 0.5, -250),
-        Size = UDim2.new(0, 750, 0, 500),
-        Image = Assets.Background,
-        ImageColor3 = Color3.fromRGB(255, 255, 255),
-        ImageTransparency = 0.97,
-        ScaleType = Enum.ScaleType.Crop,
+    -- Main Window
+    local Main = Create("Frame", {
+        Name = "Main",
+        BackgroundColor3 = Colors.Background,
+        Position = UDim2.new(0.5, -300, 0.5, -200),
+        Size = UDim2.new(0, 600, 0, 400),
         ClipsDescendants = true,
         Parent = ScreenGui
     })
-    AddCorner(MainFrame, UDim.new(0, 14))
-    AddShadow(MainFrame, 0.4)
-    AddGlow(MainFrame, Colors.Accent1, 60, 0.92)
+    Corner(Main, 10)
+    Stroke(Main, Colors.Border)
     
-    local BorderGlow = AddStroke(MainFrame, Colors.Accent1, 1.5, 0.4)
-    AddGradient(BorderGlow, Colors.Accent1, Colors.Accent2, 135)
-    
-    MakeDraggable(MainFrame, MainFrame)
-    
-    -- TOP BAR
-    local TopBar = Create("Frame", {
-        Name = "TopBar",
-        BackgroundColor3 = Colors.Secondary,
-        BackgroundTransparency = 0.2,
-        Size = UDim2.new(1, 0, 0, 52),
-        Parent = MainFrame
-    })
-    AddCorner(TopBar, UDim.new(0, 14))
-    
-    Create("Frame", {
-        Name = "TopBarFix",
-        BackgroundColor3 = Colors.Secondary,
-        BackgroundTransparency = 0.2,
-        Position = UDim2.new(0, 0, 1, -14),
-        Size = UDim2.new(1, 0, 0, 14),
+    -- Background Image
+    local BackgroundImage = Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Image = Assets.Background,
+        ImageTransparency = 0.95,
+        ScaleType = Enum.ScaleType.Tile,
+        TileSize = UDim2.new(0, 100, 0, 100),
         ZIndex = 0,
-        Parent = TopBar
+        Parent = Main
     })
+    Corner(BackgroundImage, 10)
     
-    local TopAccent = Create("Frame", {
-        Name = "TopAccent",
-        BackgroundColor3 = Colors.Accent1,
-        Position = UDim2.new(0, 0, 1, -2),
-        Size = UDim2.new(1, 0, 0, 2),
-        Parent = TopBar
-    })
-    AddGradient(TopAccent, Colors.Accent1, Colors.Accent2, 0)
-    
-    local LogoGlow = Create("ImageLabel", {
-        Name = "LogoGlow",
+    -- Shadow
+    local Shadow = Create("ImageLabel", {
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 5, 0.5, -20),
-        Size = UDim2.new(0, 50, 0, 50),
+        Position = UDim2.new(0.5, 0, 0.5, 4),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(1, 40, 1, 40),
+        ZIndex = -1,
         Image = "rbxassetid://5028857084",
-        ImageColor3 = Colors.Accent1,
-        ImageTransparency = 0.9,
-        Parent = TopBar
+        ImageColor3 = Color3.new(0, 0, 0),
+        ImageTransparency = 0.5,
+        Parent = Main
     })
     
-    Create("ImageLabel", {
-        Name = "Logo",
+    -- Subtle glow effect
+    local Glow = Create("ImageLabel", {
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 16, 0.5, -15),
-        Size = UDim2.new(0, 30, 0, 30),
+        Position = UDim2.new(0.5, 0, 0, -20),
+        AnchorPoint = Vector2.new(0.5, 0),
+        Size = UDim2.new(0.6, 0, 0, 40),
+        ZIndex = 0,
+        Image = "rbxassetid://5028857084",
+        ImageColor3 = Colors.Glow,
+        ImageTransparency = 0.85,
+        Parent = Main
+    })
+    
+    -- Dragging (only from title bar)
+    local TitleBar = Create("Frame", {
+        Name = "TitleBar",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 45),
+        ZIndex = 2,
+        Parent = Main
+    })
+    
+    local dragging, dragStart, startPos
+    
+    TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = Main.Position
+        end
+    end)
+    
+    TitleBar.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+            savedPos = Main.Position
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            Main.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    -- Logo
+    local Logo = Create("ImageLabel", {
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 12, 0, 10),
+        Size = UDim2.new(0, 24, 0, 24),
         Image = Assets.Logo,
-        Parent = TopBar
+        ZIndex = 3,
+        Parent = TitleBar
     })
     
+    -- Title
     Create("TextLabel", {
-        Name = "Title",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 55, 0, 0),
-        Size = UDim2.new(0.5, 0, 1, 0),
-        Font = Assets.FontBold,
-        Text = Name,
+        Position = UDim2.new(0, 42, 0, 0),
+        Size = UDim2.new(1, -130, 0, 45),
+        Font = Enum.Font.GothamBold,
+        Text = Title,
         TextColor3 = Colors.Text,
-        TextSize = 18,
+        TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = TopBar
+        ZIndex = 3,
+        Parent = TitleBar
     })
     
-    local ControlsFrame = Create("Frame", {
-        Name = "Controls",
-        BackgroundTransparency = 1,
-        Position = UDim2.new(1, -90, 0, 0),
-        Size = UDim2.new(0, 80, 1, 0),
-        Parent = TopBar
-    })
-    
-    local MinimizeBtn = Create("ImageButton", {
-        Name = "Minimize",
-        BackgroundColor3 = Colors.Tertiary,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 0, 0.5, -15),
-        Size = UDim2.new(0, 32, 0, 32),
-        Image = Assets.MinimizeButton,
-        ImageColor3 = Colors.TextDark,
-        Parent = ControlsFrame
-    })
-    AddCorner(MinimizeBtn, UDim.new(0, 8))
-    
+    -- Close Button with Image
     local CloseBtn = Create("ImageButton", {
-        Name = "Close",
-        BackgroundColor3 = Colors.Tertiary,
+        BackgroundColor3 = Colors.SurfaceLight,
         BackgroundTransparency = 1,
-        Position = UDim2.new(1, -32, 0.5, -15),
-        Size = UDim2.new(0, 32, 0, 32),
+        Position = UDim2.new(1, -40, 0, 8),
+        Size = UDim2.new(0, 28, 0, 28),
         Image = Assets.CloseButton,
-        ImageColor3 = Colors.TextDark,
-        Parent = ControlsFrame
+        ImageColor3 = Colors.TextDim,
+        ZIndex = 3,
+        Parent = TitleBar
     })
-    AddCorner(CloseBtn, UDim.new(0, 8))
-    
-    MinimizeBtn.MouseEnter:Connect(function()
-        TweenSmooth(MinimizeBtn, {BackgroundTransparency = 0.4, ImageColor3 = Colors.Accent1}, 0.2)
-    end)
-    MinimizeBtn.MouseLeave:Connect(function()
-        TweenSmooth(MinimizeBtn, {BackgroundTransparency = 1, ImageColor3 = Colors.TextDark}, 0.2)
-    end)
+    Corner(CloseBtn, 6)
     
     CloseBtn.MouseEnter:Connect(function()
-        TweenSmooth(CloseBtn, {BackgroundTransparency = 0.4, ImageColor3 = Colors.Error}, 0.2)
+        Tween(CloseBtn, {BackgroundTransparency = 0, ImageColor3 = Colors.Error}, 0.15)
     end)
     CloseBtn.MouseLeave:Connect(function()
-        TweenSmooth(CloseBtn, {BackgroundTransparency = 1, ImageColor3 = Colors.TextDark}, 0.2)
+        Tween(CloseBtn, {BackgroundTransparency = 1, ImageColor3 = Colors.TextDim}, 0.15)
     end)
     
-    -- TAB CONTAINER
-    local TabContainer = Create("Frame", {
-        Name = "TabContainer",
-        BackgroundColor3 = Colors.Secondary,
-        BackgroundTransparency = 0.4,
-        Position = UDim2.new(0, 12, 0, 66),
-        Size = UDim2.new(0, 165, 1, -78),
-        Parent = MainFrame
+    -- Minimize Button with Image
+    local MinBtn = Create("ImageButton", {
+        BackgroundColor3 = Colors.SurfaceLight,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -72, 0, 8),
+        Size = UDim2.new(0, 28, 0, 28),
+        Image = Assets.MinimizeButton,
+        ImageColor3 = Colors.TextDim,
+        ZIndex = 3,
+        Parent = TitleBar
     })
-    AddCorner(TabContainer, UDim.new(0, 10))
-    AddStroke(TabContainer, Colors.Outline, 1, 0.7)
+    Corner(MinBtn, 6)
+    
+    MinBtn.MouseEnter:Connect(function()
+        Tween(MinBtn, {BackgroundTransparency = 0, ImageColor3 = Colors.Text}, 0.15)
+    end)
+    MinBtn.MouseLeave:Connect(function()
+        Tween(MinBtn, {BackgroundTransparency = 1, ImageColor3 = Colors.TextDim}, 0.15)
+    end)
+    
+    -- Divider
+    Create("Frame", {
+        BackgroundColor3 = Colors.Border,
+        Position = UDim2.new(0, 0, 0, 45),
+        Size = UDim2.new(1, 0, 0, 1),
+        BorderSizePixel = 0,
+        ZIndex = 2,
+        Parent = Main
+    })
+    
+    -- Tab Container
+    local TabList = Create("Frame", {
+        BackgroundColor3 = Colors.Surface,
+        Position = UDim2.new(0, 0, 0, 46),
+        Size = UDim2.new(0, 140, 1, -46),
+        BorderSizePixel = 0,
+        ZIndex = 2,
+        Parent = Main
+    })
+    
+    Create("Frame", {
+        BackgroundColor3 = Colors.Border,
+        Position = UDim2.new(1, 0, 0, 0),
+        Size = UDim2.new(0, 1, 1, 0),
+        BorderSizePixel = 0,
+        ZIndex = 2,
+        Parent = TabList
+    })
     
     local TabScroll = Create("ScrollingFrame", {
-        Name = "TabScroll",
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 0, 0, 8),
-        Size = UDim2.new(1, 0, 1, -16),
+        Position = UDim2.new(0, 8, 0, 8),
+        Size = UDim2.new(1, -16, 1, -16),
         ScrollBarThickness = 2,
-        ScrollBarImageColor3 = Colors.Accent2,
+        ScrollBarImageColor3 = Colors.Border,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
-        Parent = TabContainer
+        ZIndex = 2,
+        Parent = TabList
     })
     
     Create("UIListLayout", {
-        Parent = TabScroll,
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 6),
-        HorizontalAlignment = Enum.HorizontalAlignment.Center
+        Padding = UDim.new(0, 4),
+        Parent = TabScroll
     })
-    AddPadding(TabScroll, 5, 5, 8, 8)
     
-    -- PAGES CONTAINER
-    local PagesContainer = Create("Frame", {
-        Name = "PagesContainer",
+    -- Content Container
+    local Content = Create("Frame", {
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 190, 0, 66),
-        Size = UDim2.new(1, -202, 1, -78),
-        Parent = MainFrame
+        Position = UDim2.new(0, 141, 0, 46),
+        Size = UDim2.new(1, -141, 1, -46),
+        ZIndex = 2,
+        Parent = Main
     })
     
-    -- WINDOW OBJECT
-    local WindowObj = {}
-    WindowObj.Visible = true
-    WindowObj.ScreenGui = ScreenGui
-    WindowObj.MainFrame = MainFrame
-    
+    -- Window Object
+    local Window = {}
     local Tabs = {}
-    local FirstTab = true
+    local CurrentTab = nil
     local minimized = false
-    local originalSize = MainFrame.Size
     
-    function WindowObj:ToggleUI()
-        WindowObj.Visible = not WindowObj.Visible
-        if WindowObj.Visible then
-            MainFrame.Visible = true
-            TweenBounce(MainFrame, {
-                Size = originalSize,
-                Position = UDim2.new(0.5, -375, 0.5, -250)
-            }, 0.45)
-        else
-            TweenSmooth(MainFrame, {
-                Size = UDim2.new(0, 0, 0, 0),
-                Position = UDim2.new(0.5, 0, 0.5, 0)
-            }, 0.3)
-            task.delay(0.3, function()
-                MainFrame.Visible = false
-            end)
+    function Window:ToggleUI()
+        Main.Visible = not Main.Visible
+        if Main.Visible and savedPos then
+            Main.Position = savedPos
         end
     end
     
-    function WindowObj:SetVisible(visible)
-        WindowObj.Visible = visible
-        if visible then
-            MainFrame.Visible = true
-            TweenBounce(MainFrame, {
-                Size = originalSize,
-                Position = UDim2.new(0.5, -375, 0.5, -250)
-            }, 0.45)
-        else
-            TweenSmooth(MainFrame, {
-                Size = UDim2.new(0, 0, 0, 0),
-                Position = UDim2.new(0.5, 0, 0.5, 0)
-            }, 0.3)
-            task.delay(0.3, function()
-                MainFrame.Visible = false
-            end)
-        end
+    function Window:Destroy()
+        ScreenGui:Destroy()
     end
     
-    function WindowObj:Destroy()
-        TweenSmooth(MainFrame, {
-            Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0)
-        }, 0.35)
-        task.delay(0.35, function()
-            ScreenGui:Destroy()
-        end)
-    end
-    
-    MinimizeBtn.MouseButton1Click:Connect(function()
-        CreateRipple(MinimizeBtn)
+    MinBtn.MouseButton1Click:Connect(function()
         minimized = not minimized
-        
         if minimized then
-            TweenSmooth(MainFrame, {Size = UDim2.new(0, 750, 0, 52)}, 0.35)
-            task.delay(0.1, function()
-                TabContainer.Visible = false
-                PagesContainer.Visible = false
-            end)
+            Tween(Main, {Size = UDim2.new(0, 600, 0, 45)}, 0.2)
         else
-            TweenBounce(MainFrame, {Size = originalSize}, 0.4)
-            task.delay(0.2, function()
-                TabContainer.Visible = true
-                PagesContainer.Visible = true
-            end)
+            Tween(Main, {Size = UDim2.new(0, 600, 0, 400)}, 0.2)
         end
     end)
     
     CloseBtn.MouseButton1Click:Connect(function()
-        CreateRipple(CloseBtn)
-        WindowObj:Destroy()
+        savedPos = Main.Position
+        Main.Visible = false
     end)
     
-    -- Opening Animation
-    MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    TweenBounce(MainFrame, {
-        Size = UDim2.new(0, 750, 0, 500),
-        Position = UDim2.new(0.5, -375, 0.5, -250)
-    }, 0.55)
+    -- Toggle hotkey (default: H)
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if not processed and input.KeyCode == Lieris.ToggleKey then
+            Window:ToggleUI()
+        end
+    end)
     
-    -- CREATE TAB FUNCTION
-    function WindowObj:CreateTab(tabOptions)
+    -- Create Tab
+    function Window:CreateTab(tabOptions)
         tabOptions = tabOptions or {}
         local TabName = tabOptions.Name or "Tab"
-        local TabIcon = tabOptions.Icon
         
+        -- Tab Button
+        local TabBtn = Create("TextButton", {
+            BackgroundColor3 = Colors.Accent,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 32),
+            Text = TabName,
+            Font = Enum.Font.Gotham,
+            TextColor3 = Colors.TextDim,
+            TextSize = 13,
+            ZIndex = 3,
+            Parent = TabScroll
+        })
+        Corner(TabBtn, 6)
+        
+        -- Gradient for tab button
+        local TabGradient = Create("UIGradient", {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Colors.Accent),
+                ColorSequenceKeypoint.new(1, Colors.Purple)
+            }),
+            Rotation = 90,
+            Parent = TabBtn
+        })
+        
+        -- Tab Page
         local TabPage = Create("ScrollingFrame", {
-            Name = TabName .. "_Page",
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 1, 0),
             ScrollBarThickness = 3,
-            ScrollBarImageColor3 = Colors.Accent2,
+            ScrollBarImageColor3 = Colors.Border,
             CanvasSize = UDim2.new(0, 0, 0, 0),
             AutomaticCanvasSize = Enum.AutomaticSize.Y,
             Visible = false,
-            Parent = PagesContainer
+            ZIndex = 2,
+            Parent = Content
         })
         
         Create("UIListLayout", {
-            Parent = TabPage,
-            SortOrder = Enum.SortOrder.LayoutOrder,
-            Padding = UDim.new(0, 10),
-            HorizontalAlignment = Enum.HorizontalAlignment.Center
-        })
-        AddPadding(TabPage, 5, 15, 5, 10)
-        
-        local TabButton = Create("TextButton", {
-            Name = TabName .. "_Btn",
-            BackgroundColor3 = Colors.Tertiary,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 40),
-            Text = "",
-            AutoButtonColor = false,
-            Parent = TabScroll
-        })
-        AddCorner(TabButton, UDim.new(0, 8))
-        
-        local TabIndicator = Create("Frame", {
-            Name = "Indicator",
-            BackgroundColor3 = Colors.Accent1,
-            Position = UDim2.new(0, 0, 0.15, 0),
-            Size = UDim2.new(0, 3, 0.7, 0),
-            Visible = false,
-            Parent = TabButton
-        })
-        AddCorner(TabIndicator, UDim.new(0, 2))
-        AddGradient(TabIndicator, Colors.Accent1, Colors.Accent2, 90)
-        
-        local TabIconImage
-        if TabIcon then
-            TabIconImage = Create("ImageLabel", {
-                Name = "Icon",
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 12, 0.5, -9),
-                Size = UDim2.new(0, 18, 0, 18),
-                Image = TabIcon,
-                ImageColor3 = Colors.TextDark,
-                Parent = TabButton
-            })
-        end
-        
-        local TabLabel = Create("TextLabel", {
-            Name = "Label",
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0, TabIcon and 38 or 15, 0, 0),
-            Size = UDim2.new(1, TabIcon and -45 or -20, 1, 0),
-            Font = Assets.Font,
-            Text = TabName,
-            TextColor3 = Colors.TextDark,
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextTruncate = Enum.TextTruncate.AtEnd,
-            Parent = TabButton
+            Padding = UDim.new(0, 8),
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            Parent = TabPage
         })
         
-        local function ActivateTab()
+        Create("UIPadding", {
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10),
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            Parent = TabPage
+        })
+        
+        local function Activate()
             for _, t in pairs(Tabs) do
-                TweenSmooth(t.Button, {BackgroundTransparency = 1}, 0.2)
-                if t.Icon then TweenSmooth(t.Icon, {ImageColor3 = Colors.TextDark}, 0.2) end
-                TweenSmooth(t.Label, {TextColor3 = Colors.TextDark}, 0.2)
-                t.Indicator.Visible = false
                 t.Page.Visible = false
+                Tween(t.Button, {BackgroundTransparency = 1, TextColor3 = Colors.TextDim}, 0.1)
             end
-            
-            TweenSmooth(TabButton, {BackgroundTransparency = 0.6}, 0.2)
-            if TabIconImage then TweenSmooth(TabIconImage, {ImageColor3 = Colors.Accent1}, 0.2) end
-            TweenSmooth(TabLabel, {TextColor3 = Colors.Text}, 0.2)
-            TabIndicator.Visible = true
             TabPage.Visible = true
+            Tween(TabBtn, {BackgroundTransparency = 0.85, TextColor3 = Colors.Text}, 0.1)
+            CurrentTab = TabName
         end
         
-        TabButton.MouseButton1Click:Connect(function()
-            CreateRipple(TabButton)
-            ActivateTab()
-        end)
+        TabBtn.MouseButton1Click:Connect(Activate)
         
-        TabButton.MouseEnter:Connect(function()
-            if not TabPage.Visible then
-                TweenSmooth(TabButton, {BackgroundTransparency = 0.8}, 0.2)
+        TabBtn.MouseEnter:Connect(function()
+            if CurrentTab ~= TabName then
+                Tween(TabBtn, {BackgroundTransparency = 0.9}, 0.1)
             end
         end)
         
-        TabButton.MouseLeave:Connect(function()
-            if not TabPage.Visible then
-                TweenSmooth(TabButton, {BackgroundTransparency = 1}, 0.2)
+        TabBtn.MouseLeave:Connect(function()
+            if CurrentTab ~= TabName then
+                Tween(TabBtn, {BackgroundTransparency = 1}, 0.1)
             end
         end)
         
-        table.insert(Tabs, {
-            Button = TabButton,
-            Page = TabPage,
-            Icon = TabIconImage,
-            Label = TabLabel,
-            Indicator = TabIndicator
-        })
+        table.insert(Tabs, {Button = TabBtn, Page = TabPage, Name = TabName})
         
-        if FirstTab then
-            FirstTab = false
-            ActivateTab()
+        if #Tabs == 1 then
+            Activate()
         end
         
-        -- TAB OBJECT
-        local TabObj = {}
+        -- Tab Object
+        local Tab = {}
         
-        -- CREATE SECTION
-        function TabObj:CreateSection(sectionName)
-            sectionName = sectionName or "Section"
+        function Tab:CreateSection(name)
+            name = name or "Section"
             
-            local SectionFrame = Create("Frame", {
-                Name = sectionName .. "_Section",
-                BackgroundColor3 = Colors.Secondary,
-                BackgroundTransparency = 0.3,
-                Size = UDim2.new(1, -10, 0, 45),
+            local Section = Create("Frame", {
+                BackgroundColor3 = Colors.Surface,
+                Size = UDim2.new(1, 0, 0, 35),
                 Parent = TabPage
             })
-            AddCorner(SectionFrame, UDim.new(0, 10))
-            AddStroke(SectionFrame, Colors.Outline, 1, 0.7)
+            Corner(Section, 8)
             
-            local SectionHeader = Create("Frame", {
-                Name = "Header",
+            local Header = Create("TextLabel", {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 38),
-                Parent = SectionFrame
-            })
-            
-            local SectionAccent = Create("Frame", {
-                Name = "Accent",
-                BackgroundColor3 = Colors.Accent1,
-                Position = UDim2.new(0, 12, 0.5, -10),
-                Size = UDim2.new(0, 3, 0, 20),
-                Parent = SectionHeader
-            })
-            AddCorner(SectionAccent, UDim.new(0, 2))
-            AddGradient(SectionAccent, Colors.Accent1, Colors.Accent2, 90)
-            
-            Create("TextLabel", {
-                Name = "Title",
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 22, 0, 0),
-                Size = UDim2.new(1, -34, 1, 0),
-                Font = Assets.FontBold,
-                Text = sectionName,
+                Position = UDim2.new(0, 12, 0, 0),
+                Size = UDim2.new(1, -24, 0, 35),
+                Font = Enum.Font.GothamBold,
+                Text = name,
                 TextColor3 = Colors.Text,
-                TextSize = 14,
+                TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Left,
-                Parent = SectionHeader
+                Parent = Section
             })
             
-            local SectionContent = Create("Frame", {
-                Name = "Content",
+            local ContentFrame = Create("Frame", {
                 BackgroundTransparency = 1,
-                Position = UDim2.new(0, 0, 0, 42),
+                Position = UDim2.new(0, 0, 0, 35),
                 Size = UDim2.new(1, 0, 0, 0),
-                Parent = SectionFrame
+                Parent = Section
             })
             
-            local ContentLayout = Create("UIListLayout", {
-                Parent = SectionContent,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                Padding = UDim.new(0, 10),
-                HorizontalAlignment = Enum.HorizontalAlignment.Center
+            local Layout = Create("UIListLayout", {
+                Padding = UDim.new(0, 6),
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                Parent = ContentFrame
             })
-            AddPadding(SectionContent, 0, 14, 14, 14)
             
-            ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                SectionContent.Size = UDim2.new(1, 0, 0, ContentLayout.AbsoluteContentSize.Y + 14)
-                SectionFrame.Size = UDim2.new(1, -10, 0, ContentLayout.AbsoluteContentSize.Y + 56)
+            Create("UIPadding", {
+                PaddingBottom = UDim.new(0, 10),
+                PaddingLeft = UDim.new(0, 10),
+                PaddingRight = UDim.new(0, 10),
+                Parent = ContentFrame
+            })
+            
+            Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                ContentFrame.Size = UDim2.new(1, 0, 0, Layout.AbsoluteContentSize.Y + 10)
+                Section.Size = UDim2.new(1, 0, 0, 35 + Layout.AbsoluteContentSize.Y + 10)
             end)
             
-            -- SECTION ELEMENTS
+            -- Elements
             local Elements = {}
             
-            -- LABEL
+            -- Label
             function Elements:CreateLabel(text)
-                text = text or "Label"
-                
                 local Label = Create("TextLabel", {
-                    Name = "Label",
                     BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 0, 24),
-                    Font = Assets.Font,
-                    Text = text,
-                    TextColor3 = Colors.TextDark,
-                    TextSize = 14,
+                    Size = UDim2.new(1, 0, 0, 20),
+                    Font = Enum.Font.Gotham,
+                    Text = text or "Label",
+                    TextColor3 = Colors.TextDim,
+                    TextSize = 12,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = SectionContent
+                    Parent = ContentFrame
                 })
                 
-                local LabelObj = {}
-                function LabelObj:Set(newText)
-                    Label.Text = newText
-                end
-                function LabelObj:Get()
-                    return Label.Text
-                end
-                
-                return LabelObj
+                local Obj = {}
+                function Obj:Set(t) Label.Text = t end
+                function Obj:Get() return Label.Text end
+                return Obj
             end
             
-            -- PARAGRAPH
-            function Elements:CreateParagraph(props)
-                props = props or {}
-                local Title = props.Title or "Title"
-                local Content = props.Content or props.Text or ""
-                
-                local ParagraphFrame = Create("Frame", {
-                    Name = "Paragraph",
-                    BackgroundColor3 = Colors.Tertiary,
-                    BackgroundTransparency = 0.3,
-                    Size = UDim2.new(1, 0, 0, 65),
-                    Parent = SectionContent
-                })
-                AddCorner(ParagraphFrame, UDim.new(0, 8))
-                AddStroke(ParagraphFrame, Colors.Outline, 1, 0.5)
-                
-                local ParagraphTitle = Create("TextLabel", {
-                    Name = "Title",
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 10),
-                    Size = UDim2.new(1, -28, 0, 18),
-                    Font = Assets.FontBold,
-                    Text = Title,
-                    TextColor3 = Colors.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = ParagraphFrame
-                })
-                
-                local ParagraphContent = Create("TextLabel", {
-                    Name = "Content",
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 30),
-                    Size = UDim2.new(1, -28, 0, 28),
-                    Font = Assets.Font,
-                    Text = Content,
-                    TextColor3 = Colors.TextDark,
-                    TextSize = 13,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    TextYAlignment = Enum.TextYAlignment.Top,
-                    TextWrapped = true,
-                    Parent = ParagraphFrame
-                })
-                
-                local success, textBounds = pcall(function()
-                    return TextService:GetTextSize(
-                        Content,
-                        12,
-                        Assets.Font,
-                        Vector2.new(ParagraphFrame.AbsoluteSize.X - 24, math.huge)
-                    )
-                end)
-                
-                if success then
-                    ParagraphContent.Size = UDim2.new(1, -24, 0, math.max(20, textBounds.Y + 5))
-                    ParagraphFrame.Size = UDim2.new(1, 0, 0, 35 + math.max(20, textBounds.Y + 5))
-                end
-                
-                local ParagraphObj = {}
-                function ParagraphObj:Set(newProps)
-                    if newProps.Title then ParagraphTitle.Text = newProps.Title end
-                    if newProps.Content then 
-                        ParagraphContent.Text = newProps.Content
-                        local s, bounds = pcall(function()
-                            return TextService:GetTextSize(
-                                newProps.Content,
-                                12,
-                                Assets.Font,
-                                Vector2.new(ParagraphFrame.AbsoluteSize.X - 24, math.huge)
-                            )
-                        end)
-                        if s then
-                            ParagraphContent.Size = UDim2.new(1, -24, 0, math.max(20, bounds.Y + 5))
-                            ParagraphFrame.Size = UDim2.new(1, 0, 0, 35 + math.max(20, bounds.Y + 5))
-                        end
-                    end
-                end
-                
-                return ParagraphObj
-            end
-            
-            -- DIVIDER
-            function Elements:CreateDivider()
-                local DividerFrame = Create("Frame", {
-                    Name = "Divider",
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 0, 14),
-                    Parent = SectionContent
-                })
-                
-                local Line = Create("Frame", {
-                    Name = "Line",
-                    BackgroundColor3 = Colors.Accent1,
-                    BackgroundTransparency = 0.7,
-                    Position = UDim2.new(0.5, 0, 0.5, 0),
-                    AnchorPoint = Vector2.new(0.5, 0.5),
-                    Size = UDim2.new(0.92, 0, 0, 1),
-                    Parent = DividerFrame
-                })
-                AddCorner(Line, UDim.new(0, 1))
-                
-                return DividerFrame
-            end
-            
-            -- BUTTON
+            -- Button
             function Elements:CreateButton(props)
                 props = props or {}
-                local ButtonName = props.Name or "Button"
+                local Name = props.Name or "Button"
                 local Callback = props.Callback or function() end
                 
-                local Button = Create("TextButton", {
-                    Name = ButtonName,
-                    BackgroundColor3 = Colors.Tertiary,
-                    Size = UDim2.new(1, 0, 0, 38),
-                    Font = Assets.Font,
-                    Text = "",
-                    AutoButtonColor = false,
-                    ClipsDescendants = true,
-                    Parent = SectionContent
-                })
-                AddCorner(Button, UDim.new(0, 8))
-                AddStroke(Button, Colors.Outline, 1, 0.6)
-                
-                Create("TextLabel", {
-                    Name = "Label",
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 0),
-                    Size = UDim2.new(1, -45, 1, 0),
-                    Font = Assets.Font,
-                    Text = ButtonName,
+                local Btn = Create("TextButton", {
+                    BackgroundColor3 = Colors.SurfaceLight,
+                    Size = UDim2.new(1, 0, 0, 32),
+                    Font = Enum.Font.Gotham,
+                    Text = Name,
                     TextColor3 = Colors.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = Button
+                    TextSize = 13,
+                    AutoButtonColor = false,
+                    Parent = ContentFrame
                 })
+                Corner(Btn, 6)
                 
-                local ButtonArrow = Create("ImageLabel", {
-                    Name = "Arrow",
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(1, -30, 0.5, -8),
-                    Size = UDim2.new(0, 16, 0, 16),
-                    Image = Assets.Icons.ArrowRight,
-                    ImageColor3 = Colors.Accent1,
-                    Parent = Button
-                })
-                
-                Button.MouseEnter:Connect(function()
-                    TweenSmooth(Button, {BackgroundColor3 = Colors.Accent1}, 0.2)
-                    TweenSmooth(ButtonArrow, {ImageColor3 = Colors.Text}, 0.2)
+                Btn.MouseEnter:Connect(function()
+                    Tween(Btn, {BackgroundColor3 = Colors.Accent}, 0.1)
                 end)
-                
-                Button.MouseLeave:Connect(function()
-                    TweenSmooth(Button, {BackgroundColor3 = Colors.Tertiary}, 0.2)
-                    TweenSmooth(ButtonArrow, {ImageColor3 = Colors.Accent1}, 0.2)
+                Btn.MouseLeave:Connect(function()
+                    Tween(Btn, {BackgroundColor3 = Colors.SurfaceLight}, 0.1)
                 end)
-                
-                Button.MouseButton1Click:Connect(function()
-                    CreateRipple(Button)
-                    CreatePulse(Button, Colors.Accent2)
+                Btn.MouseButton1Click:Connect(function()
                     pcall(Callback)
                 end)
             end
             
-            -- TOGGLE
+            -- Toggle
             function Elements:CreateToggle(props)
                 props = props or {}
-                local ToggleName = props.Name or "Toggle"
+                local Name = props.Name or "Toggle"
                 local Default = props.Default or false
-                local Flag = props.Flag or ToggleName
-                local Callback = props.Callback or function() end
-                
-                local Toggled = Default
-                Lieris.Flags[Flag] = Toggled
-                Lieris._callbacks[Flag] = Callback
-                
-                local ToggleFrame = Create("Frame", {
-                    Name = ToggleName,
-                    BackgroundColor3 = Colors.Tertiary,
-                    Size = UDim2.new(1, 0, 0, 38),
-                    Parent = SectionContent
-                })
-                AddCorner(ToggleFrame, UDim.new(0, 8))
-                AddStroke(ToggleFrame, Colors.Outline, 1, 0.6)
-                
-                Create("TextLabel", {
-                    Name = "Label",
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 0),
-                    Size = UDim2.new(1, -70, 1, 0),
-                    Font = Assets.Font,
-                    Text = ToggleName,
-                    TextColor3 = Colors.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = ToggleFrame
-                })
-                
-                local ToggleButton = Create("TextButton", {
-                    Name = "Toggle",
-                    BackgroundColor3 = Toggled and Colors.Accent1 or Colors.Main,
-                    Position = UDim2.new(1, -54, 0.5, -12),
-                    Size = UDim2.new(0, 46, 0, 24),
-                    Text = "",
-                    AutoButtonColor = false,
-                    Parent = ToggleFrame
-                })
-                AddCorner(ToggleButton, UDim.new(1, 0))
-                AddStroke(ToggleButton, Toggled and Colors.Accent1 or Colors.Outline, 1, 0.5)
-                
-                local ToggleCircle = Create("Frame", {
-                    Name = "Circle",
-                    BackgroundColor3 = Colors.Text,
-                    Position = Toggled and UDim2.new(1, -22, 0.5, -9) or UDim2.new(0, 4, 0.5, -9),
-                    Size = UDim2.new(0, 18, 0, 18),
-                    Parent = ToggleButton
-                })
-                AddCorner(ToggleCircle, UDim.new(1, 0))
-                
-                local ToggleStroke = ToggleButton:FindFirstChildOfClass("UIStroke")
-                
-                local function UpdateToggle()
-                    if Toggled then
-                        TweenSmooth(ToggleButton, {BackgroundColor3 = Colors.Accent1}, 0.25)
-                        TweenSmooth(ToggleCircle, {Position = UDim2.new(1, -22, 0.5, -9)}, 0.25)
-                        if ToggleStroke then TweenSmooth(ToggleStroke, {Color = Colors.Accent1}, 0.25) end
-                    else
-                        TweenSmooth(ToggleButton, {BackgroundColor3 = Colors.Main}, 0.25)
-                        TweenSmooth(ToggleCircle, {Position = UDim2.new(0, 4, 0.5, -9)}, 0.25)
-                        if ToggleStroke then TweenSmooth(ToggleStroke, {Color = Colors.Outline}, 0.25) end
-                    end
-                end
-                
-                local function DoToggle()
-                    Toggled = not Toggled
-                    Lieris.Flags[Flag] = Toggled
-                    UpdateToggle()
-                    pcall(Callback, Toggled)
-                end
-                
-                ToggleButton.MouseButton1Click:Connect(DoToggle)
-                
-                ToggleFrame.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        DoToggle()
-                    end
-                end)
-                
-                local ToggleObj = {}
-                function ToggleObj:Set(value)
-                    if Toggled ~= value then
-                        Toggled = value
-                        Lieris.Flags[Flag] = Toggled
-                        UpdateToggle()
-                        pcall(Callback, Toggled)
-                    end
-                end
-                function ToggleObj:Get()
-                    return Toggled
-                end
-                
-                Lieris._elements[Flag] = ToggleObj
-                return ToggleObj
-            end
-            
-            -- SLIDER
-            function Elements:CreateSlider(props)
-                props = props or {}
-                local SliderName = props.Name or "Slider"
-                local Min = props.Min or 0
-                local Max = props.Max or 100
-                local Default = props.Default or Min
-                local Increment = props.Increment or 1
-                local Flag = props.Flag or SliderName
+                local Flag = props.Flag or Name
                 local Callback = props.Callback or function() end
                 
                 local Value = Default
                 Lieris.Flags[Flag] = Value
                 Lieris._callbacks[Flag] = Callback
                 
-                local SliderFrame = Create("Frame", {
-                    Name = SliderName,
-                    BackgroundColor3 = Colors.Tertiary,
-                    Size = UDim2.new(1, 0, 0, 58),
-                    Parent = SectionContent
+                local Frame = Create("Frame", {
+                    BackgroundColor3 = Colors.SurfaceLight,
+                    Size = UDim2.new(1, 0, 0, 32),
+                    Parent = ContentFrame
                 })
-                AddCorner(SliderFrame, UDim.new(0, 8))
-                AddStroke(SliderFrame, Colors.Outline, 1, 0.6)
+                Corner(Frame, 6)
                 
                 Create("TextLabel", {
-                    Name = "Label",
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 8),
-                    Size = UDim2.new(0.7, -14, 0, 20),
-                    Font = Assets.Font,
-                    Text = SliderName,
+                    Position = UDim2.new(0, 10, 0, 0),
+                    Size = UDim2.new(1, -60, 1, 0),
+                    Font = Enum.Font.Gotham,
+                    Text = Name,
                     TextColor3 = Colors.Text,
-                    TextSize = 14,
+                    TextSize = 13,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = SliderFrame
+                    Parent = Frame
                 })
                 
-                local SliderValue = Create("TextLabel", {
-                    Name = "Value",
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(0.7, 0, 0, 8),
-                    Size = UDim2.new(0.3, -14, 0, 20),
-                    Font = Assets.FontBold,
-                    Text = tostring(Value),
-                    TextColor3 = Colors.Accent1,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Right,
-                    Parent = SliderFrame
+                local Toggle = Create("Frame", {
+                    BackgroundColor3 = Value and Colors.Accent or Colors.Background,
+                    Position = UDim2.new(1, -48, 0.5, -10),
+                    Size = UDim2.new(0, 38, 0, 20),
+                    Parent = Frame
                 })
+                Corner(Toggle, 10)
                 
-                local SliderBar = Create("Frame", {
-                    Name = "Bar",
-                    BackgroundColor3 = Colors.Main,
-                    Position = UDim2.new(0, 14, 0, 38),
-                    Size = UDim2.new(1, -28, 0, 10),
-                    Parent = SliderFrame
-                })
-                AddCorner(SliderBar, UDim.new(1, 0))
-                
-                local SliderFill = Create("Frame", {
-                    Name = "Fill",
-                    BackgroundColor3 = Colors.Accent1,
-                    Size = UDim2.new((Default - Min) / (Max - Min), 0, 1, 0),
-                    Parent = SliderBar
-                })
-                AddCorner(SliderFill, UDim.new(1, 0))
-                AddGradient(SliderFill, Colors.Accent1, Colors.Accent2, 0)
-                
-                local SliderKnob = Create("Frame", {
-                    Name = "Knob",
+                local Circle = Create("Frame", {
                     BackgroundColor3 = Colors.Text,
-                    Position = UDim2.new((Default - Min) / (Max - Min), -9, 0.5, -9),
-                    Size = UDim2.new(0, 18, 0, 18),
-                    ZIndex = 5,
-                    Parent = SliderBar
+                    Position = Value and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8),
+                    Size = UDim2.new(0, 16, 0, 16),
+                    Parent = Toggle
                 })
-                AddCorner(SliderKnob, UDim.new(1, 0))
-                AddShadow(SliderKnob, 0.6)
+                Corner(Circle, 8)
+                
+                local ToggleBtn = Create("TextButton", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 1, 0),
+                    Text = "",
+                    Parent = Frame
+                })
+                
+                local function Update()
+                    Tween(Toggle, {BackgroundColor3 = Value and Colors.Accent or Colors.Background}, 0.15)
+                    Tween(Circle, {Position = Value and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)}, 0.15)
+                end
+                
+                ToggleBtn.MouseButton1Click:Connect(function()
+                    Value = not Value
+                    Lieris.Flags[Flag] = Value
+                    Update()
+                    pcall(Callback, Value)
+                end)
+                
+                local Obj = {}
+                function Obj:Set(v)
+                    Value = v
+                    Lieris.Flags[Flag] = Value
+                    Update()
+                end
+                function Obj:Get() return Value end
+                
+                Lieris._elements[Flag] = Obj
+                return Obj
+            end
+            
+            -- Slider
+            function Elements:CreateSlider(props)
+                props = props or {}
+                local Name = props.Name or "Slider"
+                local Min = props.Min or 0
+                local Max = props.Max or 100
+                local Default = props.Default or Min
+                local Increment = props.Increment or 1
+                local Flag = props.Flag or Name
+                local Callback = props.Callback or function() end
+                
+                local Value = Default
+                Lieris.Flags[Flag] = Value
+                Lieris._callbacks[Flag] = Callback
+                
+                local Frame = Create("Frame", {
+                    BackgroundColor3 = Colors.SurfaceLight,
+                    Size = UDim2.new(1, 0, 0, 50),
+                    Parent = ContentFrame
+                })
+                Corner(Frame, 6)
+                
+                Create("TextLabel", {
+                    BackgroundTransparency = 1,
+                    Position = UDim2.new(0, 10, 0, 5),
+                    Size = UDim2.new(0.6, 0, 0, 20),
+                    Font = Enum.Font.Gotham,
+                    Text = Name,
+                    TextColor3 = Colors.Text,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = Frame
+                })
+                
+                local ValueLabel = Create("TextLabel", {
+                    BackgroundTransparency = 1,
+                    Position = UDim2.new(0.6, 0, 0, 5),
+                    Size = UDim2.new(0.4, -10, 0, 20),
+                    Font = Enum.Font.GothamBold,
+                    Text = tostring(Value),
+                    TextColor3 = Colors.Accent,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Right,
+                    Parent = Frame
+                })
+                
+                local Bar = Create("Frame", {
+                    BackgroundColor3 = Colors.Background,
+                    Position = UDim2.new(0, 10, 0, 32),
+                    Size = UDim2.new(1, -20, 0, 8),
+                    Parent = Frame
+                })
+                Corner(Bar, 4)
+                
+                local Fill = Create("Frame", {
+                    BackgroundColor3 = Colors.Accent,
+                    Size = UDim2.new((Default - Min) / (Max - Min), 0, 1, 0),
+                    Parent = Bar
+                })
+                Corner(Fill, 4)
+                
+                local Knob = Create("Frame", {
+                    BackgroundColor3 = Colors.Text,
+                    Position = UDim2.new((Default - Min) / (Max - Min), -7, 0.5, -7),
+                    Size = UDim2.new(0, 14, 0, 14),
+                    Parent = Bar
+                })
+                Corner(Knob, 7)
                 
                 local isDragging = false
                 
-                local function UpdateSlider(input)
-                    local percent = math.clamp(
-                        (input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X,
-                        0, 1
-                    )
+                local function Update(input)
+                    local percent = math.clamp((input.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
                     local raw = Min + ((Max - Min) * percent)
                     Value = math.floor(raw / Increment + 0.5) * Increment
                     Value = math.clamp(Value, Min, Max)
                     
-                    local displayPercent = (Value - Min) / (Max - Min)
-                    
+                    local p = (Value - Min) / (Max - Min)
                     Lieris.Flags[Flag] = Value
-                    SliderValue.Text = tostring(Value)
-                    Tween(SliderFill, {Size = UDim2.new(displayPercent, 0, 1, 0)}, 0.05)
-                    Tween(SliderKnob, {Position = UDim2.new(displayPercent, -8, 0.5, -8)}, 0.05)
+                    ValueLabel.Text = tostring(Value)
+                    Fill.Size = UDim2.new(p, 0, 1, 0)
+                    Knob.Position = UDim2.new(p, -7, 0.5, -7)
                     
                     pcall(Callback, Value)
                 end
                 
-                SliderBar.InputBegan:Connect(function(input)
+                Bar.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then
                         isDragging = true
-                        UpdateSlider(input)
+                        Update(input)
                     end
                 end)
                 
-                SliderKnob.InputBegan:Connect(function(input)
+                Knob.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then
                         isDragging = true
                     end
@@ -2048,7 +929,7 @@ function Lieris:CreateWindow(options)
                 
                 UserInputService.InputChanged:Connect(function(input)
                     if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                        UpdateSlider(input)
+                        Update(input)
                     end
                 end)
                 
@@ -2058,641 +939,416 @@ function Lieris:CreateWindow(options)
                     end
                 end)
                 
-                local SliderObj = {}
-                function SliderObj:Set(newValue)
-                    Value = math.clamp(newValue, Min, Max)
+                local Obj = {}
+                function Obj:Set(v)
+                    Value = math.clamp(v, Min, Max)
                     Lieris.Flags[Flag] = Value
-                    local percent = (Value - Min) / (Max - Min)
-                    SliderValue.Text = tostring(Value)
-                    TweenSmooth(SliderFill, {Size = UDim2.new(percent, 0, 1, 0)}, 0.2)
-                    TweenSmooth(SliderKnob, {Position = UDim2.new(percent, -9, 0.5, -9)}, 0.2)
-                    pcall(Callback, Value)
+                    local p = (Value - Min) / (Max - Min)
+                    ValueLabel.Text = tostring(Value)
+                    Fill.Size = UDim2.new(p, 0, 1, 0)
+                    Knob.Position = UDim2.new(p, -7, 0.5, -7)
                 end
-                function SliderObj:Get()
-                    return Value
-                end
+                function Obj:Get() return Value end
                 
-                Lieris._elements[Flag] = SliderObj
-                return SliderObj
+                Lieris._elements[Flag] = Obj
+                return Obj
             end
             
-            -- INPUT
+            -- Input
             function Elements:CreateInput(props)
                 props = props or {}
-                local InputName = props.Name or "Input"
+                local Name = props.Name or "Input"
                 local Default = props.Default or ""
-                local Placeholder = props.PlaceholderText or "Enter text..."
-                local Numeric = props.Numeric or false
-                local Finished = props.Finished ~= false
-                local Flag = props.Flag or InputName
+                local Placeholder = props.PlaceholderText or "Enter..."
+                local Flag = props.Flag or Name
                 local Callback = props.Callback or function() end
                 
                 Lieris.Flags[Flag] = Default
                 Lieris._callbacks[Flag] = Callback
                 
-                local InputFrame = Create("Frame", {
-                    Name = InputName,
-                    BackgroundColor3 = Colors.Tertiary,
-                    Size = UDim2.new(1, 0, 0, 38),
-                    Parent = SectionContent
+                local Frame = Create("Frame", {
+                    BackgroundColor3 = Colors.SurfaceLight,
+                    Size = UDim2.new(1, 0, 0, 32),
+                    Parent = ContentFrame
                 })
-                AddCorner(InputFrame, UDim.new(0, 8))
-                AddStroke(InputFrame, Colors.Outline, 1, 0.6)
+                Corner(Frame, 6)
                 
                 Create("TextLabel", {
-                    Name = "Label",
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 0),
-                    Size = UDim2.new(0.4, -14, 1, 0),
-                    Font = Assets.Font,
-                    Text = InputName,
-                    TextColor3 = Colors.Text,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = InputFrame
-                })
-                
-                local InputBox = Create("TextBox", {
-                    Name = "Box",
-                    BackgroundColor3 = Colors.Main,
-                    Position = UDim2.new(0.4, 5, 0.5, -14),
-                    Size = UDim2.new(0.6, -19, 0, 28),
-                    Font = Assets.Font,
-                    PlaceholderText = Placeholder,
-                    PlaceholderColor3 = Colors.TextDarker,
-                    Text = Default,
+                    Position = UDim2.new(0, 10, 0, 0),
+                    Size = UDim2.new(0.4, 0, 1, 0),
+                    Font = Enum.Font.Gotham,
+                    Text = Name,
                     TextColor3 = Colors.Text,
                     TextSize = 13,
-                    ClearTextOnFocus = false,
-                    Parent = InputFrame
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = Frame
                 })
-                AddCorner(InputBox, UDim.new(0, 6))
                 
-                local InputStroke = AddStroke(InputBox, Colors.Outline, 1, 0.6)
+                local Box = Create("TextBox", {
+                    BackgroundColor3 = Colors.Background,
+                    Position = UDim2.new(0.4, 5, 0.5, -12),
+                    Size = UDim2.new(0.6, -15, 0, 24),
+                    Font = Enum.Font.Gotham,
+                    PlaceholderText = Placeholder,
+                    PlaceholderColor3 = Colors.TextDark,
+                    Text = Default,
+                    TextColor3 = Colors.Text,
+                    TextSize = 12,
+                    ClearTextOnFocus = false,
+                    Parent = Frame
+                })
+                Corner(Box, 4)
                 
-                InputBox.Focused:Connect(function()
-                    TweenSmooth(InputStroke, {Color = Colors.Accent1, Transparency = 0}, 0.2)
+                Box.FocusLost:Connect(function()
+                    Lieris.Flags[Flag] = Box.Text
+                    pcall(Callback, Box.Text)
                 end)
                 
-                InputBox.FocusLost:Connect(function(enterPressed)
-                    TweenSmooth(InputStroke, {Color = Colors.Outline, Transparency = 0.6}, 0.2)
-                    
-                    local text = InputBox.Text
-                    if Numeric then
-                        text = text:gsub("[^%d%.%-]", "")
-                        InputBox.Text = text
-                    end
-                    
-                    Lieris.Flags[Flag] = text
-                    
-                    if Finished then
-                        if enterPressed then
-                            pcall(Callback, text)
-                        end
-                    else
-                        pcall(Callback, text)
-                    end
-                end)
+                local Obj = {}
+                function Obj:Set(t) Box.Text = t; Lieris.Flags[Flag] = t end
+                function Obj:Get() return Box.Text end
                 
-                if not Finished then
-                    InputBox:GetPropertyChangedSignal("Text"):Connect(function()
-                        local text = InputBox.Text
-                        if Numeric then
-                            text = text:gsub("[^%d%.%-]", "")
-                        end
-                        Lieris.Flags[Flag] = text
-                        pcall(Callback, text)
-                    end)
-                end
-                
-                local InputObj = {}
-                function InputObj:Set(text)
-                    InputBox.Text = text
-                    Lieris.Flags[Flag] = text
-                end
-                function InputObj:Get()
-                    return InputBox.Text
-                end
-                
-                Lieris._elements[Flag] = InputObj
-                return InputObj
+                Lieris._elements[Flag] = Obj
+                return Obj
             end
             
-            -- DROPDOWN
+            -- Dropdown
             function Elements:CreateDropdown(props)
                 props = props or {}
-                local DropdownName = props.Name or "Dropdown"
+                local Name = props.Name or "Dropdown"
                 local Options = props.Options or {"Option 1", "Option 2"}
                 local Default = props.Default or Options[1]
-                local Multi = props.Multi or false
-                local Flag = props.Flag or DropdownName
+                local Flag = props.Flag or Name
                 local Callback = props.Callback or function() end
                 
-                local Selected = Multi and {} or Default
-                if Multi then
-                    for _, opt in ipairs(Options) do
-                        Selected[opt] = false
-                    end
-                end
-                
+                local Selected = Default
+                local isOpen = false
                 Lieris.Flags[Flag] = Selected
                 Lieris._callbacks[Flag] = Callback
                 
-                local DropdownFrame = Create("Frame", {
-                    Name = DropdownName,
-                    BackgroundColor3 = Colors.Tertiary,
-                    Size = UDim2.new(1, 0, 0, 38),
+                local Frame = Create("Frame", {
+                    BackgroundColor3 = Colors.SurfaceLight,
+                    Size = UDim2.new(1, 0, 0, 32),
                     ClipsDescendants = true,
-                    Parent = SectionContent
+                    Parent = ContentFrame
                 })
-                AddCorner(DropdownFrame, UDim.new(0, 8))
-                AddStroke(DropdownFrame, Colors.Outline, 1, 0.6)
+                Corner(Frame, 6)
                 
-                local DropdownButton = Create("TextButton", {
-                    Name = "Button",
+                local Header = Create("TextButton", {
                     BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 0, 38),
+                    Size = UDim2.new(1, 0, 0, 32),
                     Text = "",
-                    Parent = DropdownFrame
+                    Parent = Frame
                 })
                 
                 Create("TextLabel", {
-                    Name = "Label",
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 0),
-                    Size = UDim2.new(0.5, -14, 1, 0),
-                    Font = Assets.Font,
-                    Text = DropdownName,
+                    Position = UDim2.new(0, 10, 0, 0),
+                    Size = UDim2.new(0.5, 0, 0, 32),
+                    Font = Enum.Font.Gotham,
+                    Text = Name,
                     TextColor3 = Colors.Text,
-                    TextSize = 14,
+                    TextSize = 13,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = DropdownButton
+                    Parent = Header
                 })
                 
-                local function GetDisplayText()
-                    if Multi then
-                        local selectedItems = {}
-                        for opt, sel in pairs(Selected) do
-                            if sel then table.insert(selectedItems, opt) end
-                        end
-                        if #selectedItems == 0 then return "None" end
-                        if #selectedItems > 2 then return #selectedItems .. " selected" end
-                        return table.concat(selectedItems, ", ")
-                    else
-                        return Selected or "None"
-                    end
-                end
-                
-                local DropdownSelected = Create("TextLabel", {
-                    Name = "Selected",
+                local SelectedLabel = Create("TextLabel", {
                     BackgroundTransparency = 1,
                     Position = UDim2.new(0.5, 0, 0, 0),
-                    Size = UDim2.new(0.5, -35, 1, 0),
-                    Font = Assets.Font,
-                    Text = GetDisplayText(),
-                    TextColor3 = Colors.Accent1,
-                    TextSize = 13,
+                    Size = UDim2.new(0.5, -30, 0, 32),
+                    Font = Enum.Font.Gotham,
+                    Text = Selected,
+                    TextColor3 = Colors.Accent,
+                    TextSize = 12,
                     TextXAlignment = Enum.TextXAlignment.Right,
-                    TextTruncate = Enum.TextTruncate.AtEnd,
-                    Parent = DropdownButton
+                    Parent = Header
                 })
                 
-                local DropdownArrow = Create("ImageLabel", {
-                    Name = "Arrow",
+                local Arrow = Create("TextLabel", {
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(1, -28, 0.5, -8),
-                    Size = UDim2.new(0, 16, 0, 16),
-                    Image = Assets.Icons.ArrowDown,
-                    ImageColor3 = Colors.TextDark,
-                    Rotation = 0,
-                    Parent = DropdownButton
+                    Position = UDim2.new(1, -25, 0, 0),
+                    Size = UDim2.new(0, 20, 0, 32),
+                    Font = Enum.Font.GothamBold,
+                    Text = "▼",
+                    TextColor3 = Colors.TextDim,
+                    TextSize = 10,
+                    Parent = Header
                 })
                 
-                local OptionsContainer = Create("Frame", {
-                    Name = "Options",
+                local OptionsList = Create("Frame", {
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 8, 0, 42),
-                    Size = UDim2.new(1, -16, 0, #Options * 30),
-                    Parent = DropdownFrame
+                    Position = UDim2.new(0, 5, 0, 36),
+                    Size = UDim2.new(1, -10, 0, #Options * 28),
+                    Parent = Frame
                 })
                 
-                local OptionsLayout = Create("UIListLayout", {
-                    Parent = OptionsContainer,
-                    SortOrder = Enum.SortOrder.LayoutOrder,
-                    Padding = UDim.new(0, 4)
+                Create("UIListLayout", {
+                    Padding = UDim.new(0, 2),
+                    Parent = OptionsList
                 })
                 
-                local isOpen = false
-                
-                local function CreateOption(optionName)
-                    local OptionButton = Create("TextButton", {
-                        Name = optionName,
-                        BackgroundColor3 = Colors.Main,
+                local function CreateOption(optName)
+                    local OptBtn = Create("TextButton", {
+                        BackgroundColor3 = Colors.Background,
+                        BackgroundTransparency = optName == Selected and 0 or 1,
                         Size = UDim2.new(1, 0, 0, 26),
-                        Font = Assets.Font,
-                        Text = optionName,
-                        TextColor3 = Colors.TextDark,
-                        TextSize = 13,
+                        Font = Enum.Font.Gotham,
+                        Text = optName,
+                        TextColor3 = optName == Selected and Colors.Accent or Colors.TextDim,
+                        TextSize = 12,
                         AutoButtonColor = false,
-                        Parent = OptionsContainer
+                        Parent = OptionsList
                     })
-                    AddCorner(OptionButton, UDim.new(0, 4))
+                    Corner(OptBtn, 4)
                     
-                    local function UpdateOptionVisual()
-                        local isSelected = Multi and Selected[optionName] or Selected == optionName
-                        if isSelected then
-                            Tween(OptionButton, {BackgroundColor3 = Colors.Accent1, TextColor3 = Colors.Text}, 0.15)
-                        else
-                            Tween(OptionButton, {BackgroundColor3 = Colors.Main, TextColor3 = Colors.TextDark}, 0.15)
-                        end
-                    end
-                    
-                    OptionButton.MouseEnter:Connect(function()
-                        local isSelected = Multi and Selected[optionName] or Selected == optionName
-                        if not isSelected then
-                            Tween(OptionButton, {BackgroundColor3 = Colors.Secondary}, 0.1)
+                    OptBtn.MouseEnter:Connect(function()
+                        if Selected ~= optName then
+                            Tween(OptBtn, {BackgroundTransparency = 0.5}, 0.1)
                         end
                     end)
                     
-                    OptionButton.MouseLeave:Connect(function()
-                        local isSelected = Multi and Selected[optionName] or Selected == optionName
-                        if not isSelected then
-                            Tween(OptionButton, {BackgroundColor3 = Colors.Main}, 0.1)
+                    OptBtn.MouseLeave:Connect(function()
+                        if Selected ~= optName then
+                            Tween(OptBtn, {BackgroundTransparency = 1}, 0.1)
                         end
                     end)
                     
-                    OptionButton.MouseButton1Click:Connect(function()
-                        if Multi then
-                            Selected[optionName] = not Selected[optionName]
-                            Lieris.Flags[Flag] = Selected
-                            UpdateOptionVisual()
-                            DropdownSelected.Text = GetDisplayText()
-                            pcall(Callback, Selected)
-                        else
-                            Selected = optionName
-                            Lieris.Flags[Flag] = Selected
-                            DropdownSelected.Text = GetDisplayText()
-                            
-                            for _, child in ipairs(OptionsContainer:GetChildren()) do
-                                if child:IsA("TextButton") then
-                                    if child.Name == optionName then
-                                        Tween(child, {BackgroundColor3 = Colors.Accent1, TextColor3 = Colors.Text}, 0.15)
-                                    else
-                                        Tween(child, {BackgroundColor3 = Colors.Main, TextColor3 = Colors.TextDark}, 0.15)
-                                    end
-                                end
+                    OptBtn.MouseButton1Click:Connect(function()
+                        Selected = optName
+                        Lieris.Flags[Flag] = Selected
+                        SelectedLabel.Text = Selected
+                        
+                        for _, c in ipairs(OptionsList:GetChildren()) do
+                            if c:IsA("TextButton") then
+                                local isSel = c.Text == Selected
+                                Tween(c, {
+                                    BackgroundTransparency = isSel and 0 or 1,
+                                    TextColor3 = isSel and Colors.Accent or Colors.TextDim
+                                }, 0.1)
                             end
-                            
-                            isOpen = false
-                            Tween(DropdownFrame, {Size = UDim2.new(1, 0, 0, 36)}, 0.2)
-                            Tween(DropdownArrow, {Rotation = 0}, 0.2)
-                            
-                            pcall(Callback, Selected)
                         end
+                        
+                        isOpen = false
+                        Tween(Frame, {Size = UDim2.new(1, 0, 0, 32)}, 0.15)
+                        Arrow.Text = "▼"
+                        
+                        pcall(Callback, Selected)
                     end)
-                    
-                    UpdateOptionVisual()
-                    return OptionButton
                 end
                 
                 for _, opt in ipairs(Options) do
                     CreateOption(opt)
                 end
                 
-                DropdownButton.MouseButton1Click:Connect(function()
+                Header.MouseButton1Click:Connect(function()
                     isOpen = not isOpen
-                    
-                    local optionsHeight = OptionsLayout.AbsoluteContentSize.Y
-                    
                     if isOpen then
-                        TweenSmooth(DropdownFrame, {Size = UDim2.new(1, 0, 0, 50 + optionsHeight)}, 0.3)
-                        TweenSmooth(DropdownArrow, {Rotation = 180}, 0.3)
+                        Tween(Frame, {Size = UDim2.new(1, 0, 0, 40 + #Options * 28)}, 0.15)
+                        Arrow.Text = "▲"
                     else
-                        TweenSmooth(DropdownFrame, {Size = UDim2.new(1, 0, 0, 38)}, 0.25)
-                        TweenSmooth(DropdownArrow, {Rotation = 0}, 0.25)
+                        Tween(Frame, {Size = UDim2.new(1, 0, 0, 32)}, 0.15)
+                        Arrow.Text = "▼"
                     end
                 end)
                 
-                local DropdownObj = {}
-                
-                function DropdownObj:Set(value)
-                    if Multi then
-                        if typeof(value) == "table" then
-                            Selected = value
-                        end
-                    else
-                        Selected = value
-                    end
+                local Obj = {}
+                function Obj:Set(v)
+                    Selected = v
                     Lieris.Flags[Flag] = Selected
-                    DropdownSelected.Text = GetDisplayText()
-                    
-                    for _, child in ipairs(OptionsContainer:GetChildren()) do
-                        if child:IsA("TextButton") then
-                            local isSelected = Multi and Selected[child.Name] or Selected == child.Name
-                            if isSelected then
-                                child.BackgroundColor3 = Colors.Accent1
-                                child.TextColor3 = Colors.Text
-                            else
-                                child.BackgroundColor3 = Colors.Main
-                                child.TextColor3 = Colors.TextDark
-                            end
+                    SelectedLabel.Text = Selected
+                    for _, c in ipairs(OptionsList:GetChildren()) do
+                        if c:IsA("TextButton") then
+                            local isSel = c.Text == Selected
+                            c.BackgroundTransparency = isSel and 0 or 1
+                            c.TextColor3 = isSel and Colors.Accent or Colors.TextDim
                         end
                     end
-                    
-                    pcall(Callback, Selected)
                 end
-                
-                function DropdownObj:Get()
-                    return Selected
-                end
-                
-                function DropdownObj:Refresh(newOptions)
+                function Obj:Get() return Selected end
+                function Obj:Refresh(newOptions)
                     Options = newOptions
-                    
-                    for _, child in ipairs(OptionsContainer:GetChildren()) do
-                        if child:IsA("TextButton") then
-                            child:Destroy()
-                        end
+                    for _, c in ipairs(OptionsList:GetChildren()) do
+                        if c:IsA("TextButton") then c:Destroy() end
                     end
-                    
-                    if Multi then
-                        Selected = {}
-                        for _, opt in ipairs(Options) do
-                            Selected[opt] = false
-                        end
-                    else
-                        Selected = Options[1]
-                    end
-                    
                     for _, opt in ipairs(Options) do
                         CreateOption(opt)
                     end
-                    
-                    Lieris.Flags[Flag] = Selected
-                    DropdownSelected.Text = GetDisplayText()
-                    
-                    if isOpen then
-                        local optionsHeight = #Options * 30
-                        Tween(DropdownFrame, {Size = UDim2.new(1, 0, 0, 48 + optionsHeight)}, 0.2)
-                    end
+                    OptionsList.Size = UDim2.new(1, -10, 0, #Options * 28)
                 end
                 
-                function DropdownObj:Add(option)
-                    table.insert(Options, option)
-                    if Multi then
-                        Selected[option] = false
-                    end
-                    CreateOption(option)
-                    
-                    if isOpen then
-                        local optionsHeight = OptionsLayout.AbsoluteContentSize.Y
-                        Tween(DropdownFrame, {Size = UDim2.new(1, 0, 0, 48 + optionsHeight)}, 0.2)
-                    end
-                end
-                
-                function DropdownObj:Remove(option)
-                    for i, opt in ipairs(Options) do
-                        if opt == option then
-                            table.remove(Options, i)
-                            break
-                        end
-                    end
-                    
-                    if Multi then
-                        Selected[option] = nil
-                    elseif Selected == option then
-                        Selected = Options[1]
-                    end
-                    
-                    local optBtn = OptionsContainer:FindFirstChild(option)
-                    if optBtn then
-                        optBtn:Destroy()
-                    end
-                    
-                    Lieris.Flags[Flag] = Selected
-                    DropdownSelected.Text = GetDisplayText()
-                    
-                    if isOpen then
-                        local optionsHeight = OptionsLayout.AbsoluteContentSize.Y
-                        Tween(DropdownFrame, {Size = UDim2.new(1, 0, 0, 48 + optionsHeight)}, 0.2)
-                    end
-                end
-                
-                Lieris._elements[Flag] = DropdownObj
-                return DropdownObj
+                Lieris._elements[Flag] = Obj
+                return Obj
             end
             
-            -- KEYBIND
+            -- Keybind
             function Elements:CreateKeybind(props)
                 props = props or {}
-                local KeybindName = props.Name or "Keybind"
+                local Name = props.Name or "Keybind"
                 local Default = props.Default or Enum.KeyCode.E
-                local Hold = props.Hold or false
-                local Flag = props.Flag or KeybindName
+                local Flag = props.Flag or Name
                 local Callback = props.Callback or function() end
-                local ChangedCallback = props.ChangedCallback or function() end
                 
-                local CurrentKey = Default
-                local Listening = false
-                local Holding = false
-                
-                Lieris.Flags[Flag] = CurrentKey
+                local Key = Default
+                local listening = false
+                Lieris.Flags[Flag] = Key
                 Lieris._callbacks[Flag] = Callback
                 
-                local KeybindFrame = Create("Frame", {
-                    Name = KeybindName,
-                    BackgroundColor3 = Colors.Tertiary,
-                    Size = UDim2.new(1, 0, 0, 38),
-                    Parent = SectionContent
+                local Frame = Create("Frame", {
+                    BackgroundColor3 = Colors.SurfaceLight,
+                    Size = UDim2.new(1, 0, 0, 32),
+                    Parent = ContentFrame
                 })
-                AddCorner(KeybindFrame, UDim.new(0, 8))
-                AddStroke(KeybindFrame, Colors.Outline, 1, 0.6)
+                Corner(Frame, 6)
                 
                 Create("TextLabel", {
-                    Name = "Label",
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 0),
-                    Size = UDim2.new(1, -105, 1, 0),
-                    Font = Assets.Font,
-                    Text = KeybindName,
+                    Position = UDim2.new(0, 10, 0, 0),
+                    Size = UDim2.new(1, -80, 1, 0),
+                    Font = Enum.Font.Gotham,
+                    Text = Name,
                     TextColor3 = Colors.Text,
-                    TextSize = 14,
+                    TextSize = 13,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = KeybindFrame
+                    Parent = Frame
                 })
                 
-                local KeybindButton = Create("TextButton", {
-                    Name = "Button",
-                    BackgroundColor3 = Colors.Main,
-                    Position = UDim2.new(1, -90, 0.5, -14),
-                    Size = UDim2.new(0, 80, 0, 28),
-                    Font = Assets.FontBold,
-                    Text = CurrentKey.Name,
-                    TextColor3 = Colors.Accent1,
-                    TextSize = 12,
-                    AutoButtonColor = false,
-                    Parent = KeybindFrame
+                local KeyBtn = Create("TextButton", {
+                    BackgroundColor3 = Colors.Background,
+                    Position = UDim2.new(1, -70, 0.5, -12),
+                    Size = UDim2.new(0, 60, 0, 24),
+                    Font = Enum.Font.GothamBold,
+                    Text = Key.Name,
+                    TextColor3 = Colors.Accent,
+                    TextSize = 11,
+                    Parent = Frame
                 })
-                AddCorner(KeybindButton, UDim.new(0, 6))
-                AddStroke(KeybindButton, Colors.Outline, 1, 0.6)
+                Corner(KeyBtn, 4)
                 
-                KeybindButton.MouseButton1Click:Connect(function()
-                    if Listening then return end
-                    Listening = true
-                    KeybindButton.Text = "..."
-                    TweenSmooth(KeybindButton, {TextColor3 = Colors.Accent2, BackgroundColor3 = Colors.Tertiary}, 0.2)
+                KeyBtn.MouseButton1Click:Connect(function()
+                    listening = true
+                    KeyBtn.Text = "..."
+                    Tween(KeyBtn, {TextColor3 = Colors.Warning}, 0.1)
                 end)
                 
                 UserInputService.InputBegan:Connect(function(input, processed)
-                    if Listening then
-                        if input.UserInputType == Enum.UserInputType.Keyboard then
-                            CurrentKey = input.KeyCode
-                            Lieris.Flags[Flag] = CurrentKey
-                            KeybindButton.Text = CurrentKey.Name
-                            TweenSmooth(KeybindButton, {TextColor3 = Colors.Accent1, BackgroundColor3 = Colors.Main}, 0.2)
-                            Listening = false
-                            pcall(ChangedCallback, CurrentKey)
-                        end
-                    elseif not processed then
-                        if input.KeyCode == CurrentKey then
-                            if Hold then
-                                Holding = true
-                                pcall(Callback, true)
-                            else
-                                pcall(Callback)
-                            end
-                        end
+                    if listening and input.UserInputType == Enum.UserInputType.Keyboard then
+                        Key = input.KeyCode
+                        Lieris.Flags[Flag] = Key
+                        KeyBtn.Text = Key.Name
+                        Tween(KeyBtn, {TextColor3 = Colors.Accent}, 0.1)
+                        listening = false
+                    elseif not processed and input.KeyCode == Key then
+                        pcall(Callback)
                     end
                 end)
                 
-                if Hold then
-                    UserInputService.InputEnded:Connect(function(input)
-                        if input.KeyCode == CurrentKey and Holding then
-                            Holding = false
-                            pcall(Callback, false)
-                        end
-                    end)
-                end
+                local Obj = {}
+                function Obj:Set(k) Key = k; Lieris.Flags[Flag] = k; KeyBtn.Text = k.Name end
+                function Obj:Get() return Key end
                 
-                local KeybindObj = {}
-                function KeybindObj:Set(key)
-                    CurrentKey = key
-                    Lieris.Flags[Flag] = CurrentKey
-                    KeybindButton.Text = CurrentKey.Name
-                    pcall(ChangedCallback, CurrentKey)
-                end
-                function KeybindObj:Get()
-                    return CurrentKey
-                end
-                
-                Lieris._elements[Flag] = KeybindObj
-                return KeybindObj
+                Lieris._elements[Flag] = Obj
+                return Obj
             end
             
-            -- COLOR PICKER
+            -- Color Picker (with confirm button)
             function Elements:CreateColorPicker(props)
                 props = props or {}
-                local ColorName = props.Name or "Color Picker"
+                local Name = props.Name or "Color"
                 local Default = props.Default or Color3.fromRGB(255, 255, 255)
-                local Flag = props.Flag or ColorName
+                local Flag = props.Flag or Name
                 local Callback = props.Callback or function() end
                 
-                local CurrentColor = Default
+                local Color = Default
+                local TempColor = Default
                 local H, S, V = Color3.toHSV(Default)
                 local isOpen = false
                 
-                Lieris.Flags[Flag] = CurrentColor
+                Lieris.Flags[Flag] = Color
                 Lieris._callbacks[Flag] = Callback
                 
-                local ColorFrame = Create("Frame", {
-                    Name = ColorName,
-                    BackgroundColor3 = Colors.Tertiary,
-                    Size = UDim2.new(1, 0, 0, 38),
+                local Frame = Create("Frame", {
+                    BackgroundColor3 = Colors.SurfaceLight,
+                    Size = UDim2.new(1, 0, 0, 32),
                     ClipsDescendants = true,
-                    Parent = SectionContent
+                    Parent = ContentFrame
                 })
-                AddCorner(ColorFrame, UDim.new(0, 8))
-                AddStroke(ColorFrame, Colors.Outline, 1, 0.6)
+                Corner(Frame, 6)
                 
-                local ColorButton = Create("TextButton", {
-                    Name = "Button",
+                local Header = Create("TextButton", {
                     BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 0, 38),
+                    Size = UDim2.new(1, 0, 0, 32),
                     Text = "",
-                    Parent = ColorFrame
+                    Parent = Frame
                 })
                 
                 Create("TextLabel", {
-                    Name = "Label",
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 14, 0, 0),
-                    Size = UDim2.new(1, -70, 1, 0),
-                    Font = Assets.Font,
-                    Text = ColorName,
+                    Position = UDim2.new(0, 10, 0, 0),
+                    Size = UDim2.new(1, -60, 0, 32),
+                    Font = Enum.Font.Gotham,
+                    Text = Name,
                     TextColor3 = Colors.Text,
-                    TextSize = 14,
+                    TextSize = 13,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = ColorButton
+                    Parent = Header
                 })
                 
-                local ColorDisplay = Create("Frame", {
-                    Name = "Display",
-                    BackgroundColor3 = CurrentColor,
-                    Position = UDim2.new(1, -52, 0.5, -12),
-                    Size = UDim2.new(0, 42, 0, 24),
-                    Parent = ColorButton
+                local Preview = Create("Frame", {
+                    BackgroundColor3 = Color,
+                    Position = UDim2.new(1, -45, 0.5, -10),
+                    Size = UDim2.new(0, 35, 0, 20),
+                    Parent = Header
                 })
-                AddCorner(ColorDisplay, UDim.new(0, 6))
-                AddStroke(ColorDisplay, Color3.fromRGB(255, 255, 255), 1, 0.2)
+                Corner(Preview, 4)
+                Stroke(Preview, Colors.Border)
                 
-                local PickerPanel = Create("Frame", {
-                    Name = "Panel",
-                    BackgroundColor3 = Colors.Main,
-                    Position = UDim2.new(0, 10, 0, 46),
-                    Size = UDim2.new(1, -20, 0, 150),
-                    Parent = ColorFrame
+                -- Picker Panel
+                local Panel = Create("Frame", {
+                    BackgroundColor3 = Colors.Background,
+                    Position = UDim2.new(0, 8, 0, 38),
+                    Size = UDim2.new(1, -16, 0, 150),
+                    Parent = Frame
                 })
-                AddCorner(PickerPanel, UDim.new(0, 8))
-                AddStroke(PickerPanel, Colors.Outline, 1, 0.4)
+                Corner(Panel, 6)
                 
+                -- SV Picker
                 local SVPicker = Create("ImageLabel", {
-                    Name = "SVPicker",
                     BackgroundColor3 = Color3.fromHSV(H, 1, 1),
-                    Position = UDim2.new(0, 10, 0, 10),
-                    Size = UDim2.new(1, -55, 1, -20),
+                    Position = UDim2.new(0, 8, 0, 8),
+                    Size = UDim2.new(1, -50, 0, 100),
                     Image = "rbxassetid://4155801252",
-                    Parent = PickerPanel
+                    Parent = Panel
                 })
-                AddCorner(SVPicker, UDim.new(0, 6))
+                Corner(SVPicker, 4)
                 
                 local SVCursor = Create("Frame", {
-                    Name = "Cursor",
-                    BackgroundColor3 = Color3.new(1, 1, 1),
-                    Position = UDim2.new(S, -6, 1 - V, -6),
-                    Size = UDim2.new(0, 12, 0, 12),
-                    ZIndex = 5,
+                    BackgroundColor3 = Colors.Text,
+                    Position = UDim2.new(S, -5, 1 - V, -5),
+                    Size = UDim2.new(0, 10, 0, 10),
                     Parent = SVPicker
                 })
-                AddCorner(SVCursor, UDim.new(1, 0))
-                AddStroke(SVCursor, Color3.new(0, 0, 0), 2, 0)
+                Corner(SVCursor, 5)
+                Stroke(SVCursor, Color3.new(0, 0, 0), 2)
                 
+                -- Hue Bar
                 local HueBar = Create("Frame", {
-                    Name = "HueBar",
-                    BackgroundColor3 = Color3.new(1, 1, 1),
-                    Position = UDim2.new(1, -35, 0, 10),
-                    Size = UDim2.new(0, 24, 1, -20),
-                    Parent = PickerPanel
+                    BackgroundColor3 = Colors.Text,
+                    Position = UDim2.new(1, -32, 0, 8),
+                    Size = UDim2.new(0, 18, 0, 100),
+                    Parent = Panel
                 })
-                AddCorner(HueBar, UDim.new(0, 6))
+                Corner(HueBar, 4)
                 
                 Create("UIGradient", {
                     Color = ColorSequence.new({
                         ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-                        ColorSequenceKeypoint.new(0.167, Color3.fromRGB(255, 255, 0)),
-                        ColorSequenceKeypoint.new(0.333, Color3.fromRGB(0, 255, 0)),
+                        ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+                        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
                         ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
-                        ColorSequenceKeypoint.new(0.667, Color3.fromRGB(0, 0, 255)),
-                        ColorSequenceKeypoint.new(0.833, Color3.fromRGB(255, 0, 255)),
+                        ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+                        ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
                         ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
                     }),
                     Rotation = 90,
@@ -2700,26 +1356,34 @@ function Lieris:CreateWindow(options)
                 })
                 
                 local HueCursor = Create("Frame", {
-                    Name = "Cursor",
-                    BackgroundColor3 = Color3.new(1, 1, 1),
-                    Position = UDim2.new(0.5, -8, H, -4),
-                    Size = UDim2.new(0, 16, 0, 8),
-                    ZIndex = 5,
+                    BackgroundColor3 = Colors.Text,
+                    Position = UDim2.new(0.5, -7, H, -4),
+                    Size = UDim2.new(0, 14, 0, 8),
                     Parent = HueBar
                 })
-                AddCorner(HueCursor, UDim.new(0, 3))
-                AddStroke(HueCursor, Color3.new(0, 0, 0), 2, 0)
+                Corner(HueCursor, 3)
+                Stroke(HueCursor, Color3.new(0, 0, 0), 2)
                 
-                local function UpdateColor()
-                    CurrentColor = Color3.fromHSV(H, S, V)
-                    Lieris.Flags[Flag] = CurrentColor
-                    ColorDisplay.BackgroundColor3 = CurrentColor
+                -- Confirm Button
+                local ConfirmBtn = Create("TextButton", {
+                    BackgroundColor3 = Colors.Accent,
+                    Position = UDim2.new(0, 8, 1, -32),
+                    Size = UDim2.new(1, -16, 0, 26),
+                    Font = Enum.Font.GothamBold,
+                    Text = "Confirm",
+                    TextColor3 = Colors.Text,
+                    TextSize = 12,
+                    AutoButtonColor = false,
+                    Parent = Panel
+                })
+                Corner(ConfirmBtn, 4)
+                
+                local function UpdateTemp()
+                    TempColor = Color3.fromHSV(H, S, V)
                     SVPicker.BackgroundColor3 = Color3.fromHSV(H, 1, 1)
-                    pcall(Callback, CurrentColor)
                 end
                 
-                local draggingSV = false
-                local draggingHue = false
+                local draggingSV, draggingHue = false, false
                 
                 SVPicker.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -2740,473 +1404,203 @@ function Lieris:CreateWindow(options)
                                 math.clamp((input.Position.X - SVPicker.AbsolutePosition.X) / SVPicker.AbsoluteSize.X, 0, 1),
                                 math.clamp((input.Position.Y - SVPicker.AbsolutePosition.Y) / SVPicker.AbsoluteSize.Y, 0, 1)
                             )
-                            S = pos.X
-                            V = 1 - pos.Y
-                            SVCursor.Position = UDim2.new(S, -6, 1 - V, -6)
-                            UpdateColor()
+                            S, V = pos.X, 1 - pos.Y
+                            SVCursor.Position = UDim2.new(S, -5, 1 - V, -5)
+                            UpdateTemp()
                         elseif draggingHue then
-                            local pos = math.clamp((input.Position.Y - HueBar.AbsolutePosition.Y) / HueBar.AbsoluteSize.Y, 0, 1)
-                            H = pos
-                            HueCursor.Position = UDim2.new(0.5, -8, H, -4)
-                            UpdateColor()
+                            H = math.clamp((input.Position.Y - HueBar.AbsolutePosition.Y) / HueBar.AbsoluteSize.Y, 0, 1)
+                            HueCursor.Position = UDim2.new(0.5, -7, H, -4)
+                            UpdateTemp()
                         end
                     end
                 end)
                 
                 UserInputService.InputEnded:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        draggingSV = false
-                        draggingHue = false
+                        draggingSV, draggingHue = false, false
                     end
                 end)
                 
-                ColorButton.MouseButton1Click:Connect(function()
+                Header.MouseButton1Click:Connect(function()
                     isOpen = not isOpen
-                    
                     if isOpen then
-                        TweenSmooth(ColorFrame, {Size = UDim2.new(1, 0, 0, 210)}, 0.3)
+                        TempColor = Color
+                        H, S, V = Color3.toHSV(Color)
+                        SVCursor.Position = UDim2.new(S, -5, 1 - V, -5)
+                        HueCursor.Position = UDim2.new(0.5, -7, H, -4)
+                        SVPicker.BackgroundColor3 = Color3.fromHSV(H, 1, 1)
+                        Tween(Frame, {Size = UDim2.new(1, 0, 0, 195)}, 0.15)
                     else
-                        TweenSmooth(ColorFrame, {Size = UDim2.new(1, 0, 0, 38)}, 0.25)
+                        Tween(Frame, {Size = UDim2.new(1, 0, 0, 32)}, 0.15)
                     end
                 end)
                 
-                local ColorObj = {}
-                function ColorObj:Set(color)
-                    CurrentColor = color
-                    H, S, V = Color3.toHSV(color)
-                    Lieris.Flags[Flag] = CurrentColor
-                    ColorDisplay.BackgroundColor3 = CurrentColor
-                    SVPicker.BackgroundColor3 = Color3.fromHSV(H, 1, 1)
-                    SVCursor.Position = UDim2.new(S, -6, 1 - V, -6)
-                    HueCursor.Position = UDim2.new(0.5, -8, H, -4)
-                end
-                function ColorObj:Get()
-                    return CurrentColor
-                end
+                ConfirmBtn.MouseButton1Click:Connect(function()
+                    Color = TempColor
+                    Lieris.Flags[Flag] = Color
+                    Preview.BackgroundColor3 = Color
+                    isOpen = false
+                    Tween(Frame, {Size = UDim2.new(1, 0, 0, 32)}, 0.15)
+                    pcall(Callback, Color)
+                end)
                 
-                Lieris._elements[Flag] = ColorObj
-                return ColorObj
+                ConfirmBtn.MouseEnter:Connect(function()
+                    Tween(ConfirmBtn, {BackgroundColor3 = Colors.AccentDark}, 0.1)
+                end)
+                ConfirmBtn.MouseLeave:Connect(function()
+                    Tween(ConfirmBtn, {BackgroundColor3 = Colors.Accent}, 0.1)
+                end)
+                
+                local Obj = {}
+                function Obj:Set(c)
+                    Color = c
+                    Lieris.Flags[Flag] = Color
+                    Preview.BackgroundColor3 = Color
+                end
+                function Obj:Get() return Color end
+                
+                Lieris._elements[Flag] = Obj
+                return Obj
+            end
+            
+            -- Paragraph
+            function Elements:CreateParagraph(props)
+                props = props or {}
+                local Title = props.Title or "Title"
+                local Content = props.Content or ""
+                
+                local PFrame = Create("Frame", {
+                    BackgroundColor3 = Colors.Background,
+                    Size = UDim2.new(1, 0, 0, 55),
+                    Parent = ContentFrame
+                })
+                Corner(PFrame, 6)
+                
+                Create("TextLabel", {
+                    BackgroundTransparency = 1,
+                    Position = UDim2.new(0, 10, 0, 8),
+                    Size = UDim2.new(1, -20, 0, 16),
+                    Font = Enum.Font.GothamBold,
+                    Text = Title,
+                    TextColor3 = Colors.Text,
+                    TextSize = 12,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = PFrame
+                })
+                
+                Create("TextLabel", {
+                    BackgroundTransparency = 1,
+                    Position = UDim2.new(0, 10, 0, 26),
+                    Size = UDim2.new(1, -20, 0, 24),
+                    Font = Enum.Font.Gotham,
+                    Text = Content,
+                    TextColor3 = Colors.TextDim,
+                    TextSize = 11,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    Parent = PFrame
+                })
+            end
+            
+            -- Divider
+            function Elements:CreateDivider()
+                Create("Frame", {
+                    BackgroundColor3 = Colors.Border,
+                    Size = UDim2.new(1, 0, 0, 1),
+                    Parent = ContentFrame
+                })
             end
             
             return Elements
         end
         
-        return TabObj
+        return Tab
     end
     
-    -- BUILT-IN CONFIG MANAGER TAB
-    local ConfigManagerTab = WindowObj:CreateTab({
-        Name = "Config Manager",
-        Icon = Assets.Icons.Settings
-    })
+    -- Built-in Settings Tab
+    local SettingsTab = Window:CreateTab({Name = "Settings"})
     
-    -- ========================================
-    -- CONFIGURATION SECTION
-    -- ========================================
-    local ConfigSection = ConfigManagerTab:CreateSection("Configuration")
+    local ConfigSection = SettingsTab:CreateSection("Configurations")
     
-    ConfigSection:CreateParagraph({
-        Title = "Save & Load Settings",
-        Content = "Manage your configurations. Save current settings, load previously saved configs, or delete unwanted ones."
-    })
+    local configList = Lieris:GetConfigs()
+    if #configList == 0 then configList = {"default"} end
     
     local ConfigDropdown
-    
-    local function RefreshConfigList()
-        local configs = Lieris:GetConfigs()
-        if #configs == 0 then
-            configs = {"default"}
-        end
-        if ConfigDropdown then
-            ConfigDropdown:Refresh(configs)
-        end
-        return configs
-    end
+    local ConfigInput
     
     ConfigDropdown = ConfigSection:CreateDropdown({
-        Name = "Select Config",
-        Options = RefreshConfigList(),
-        Default = "default",
+        Name = "Config",
+        Options = configList,
+        Default = configList[1] or "default",
         Flag = "SelectedConfig",
-        Callback = function(value)
-            Lieris.CurrentConfig = value
+        Callback = function(v)
+            Lieris.CurrentConfig = v
         end
     })
     
-    ConfigSection:CreateInput({
-        Name = "New Config Name",
+    ConfigInput = ConfigSection:CreateInput({
+        Name = "Config Name",
         Default = "",
-        PlaceholderText = "Enter new config name...",
-        Flag = "NewConfigName",
-        Callback = function() end
+        PlaceholderText = "New config name...",
+        Flag = "NewConfigName"
     })
     
     ConfigSection:CreateButton({
-        Name = "Create & Save New Config",
+        Name = "Save Config",
         Callback = function()
-            local newName = Lieris.Flags.NewConfigName
-            if newName and newName ~= "" then
-                Lieris.CurrentConfig = newName
-                local success = Lieris:SaveConfig(newName)
-                if success then
-                    RefreshConfigList()
-                    ConfigDropdown:Set(newName)
-                    Lieris:Notify({
-                        Title = "Config Created",
-                        Content = "Created and saved: " .. newName,
-                        Type = "Success",
-                        Duration = 3
-                    })
-                else
-                    Lieris:Notify({
-                        Title = "Failed",
-                        Content = "Could not create config",
-                        Type = "Error",
-                        Duration = 3
-                    })
-                end
-            else
-                Lieris:Notify({
-                    Title = "Error",
-                    Content = "Please enter a config name",
-                    Type = "Warning",
-                    Duration = 3
-                })
+            local name = Lieris.Flags.NewConfigName
+            if name and name ~= "" then
+                Lieris.CurrentConfig = name
             end
-        end
-    })
-    
-    ConfigSection:CreateDivider()
-    
-    ConfigSection:CreateButton({
-        Name = "Save Current Config",
-        Callback = function()
-            local success = Lieris:SaveConfig(Lieris.CurrentConfig)
-            if success then
-                Lieris:Notify({
-                    Title = "Saved",
-                    Content = "Configuration saved: " .. Lieris.CurrentConfig,
-                    Type = "Success",
-                    Duration = 3
-                })
-            else
-                Lieris:Notify({
-                    Title = "Save Failed",
-                    Content = "Could not save configuration",
-                    Type = "Error",
-                    Duration = 3
-                })
+            if Lieris:SaveConfig(Lieris.CurrentConfig) then
+                local configs = Lieris:GetConfigs()
+                ConfigDropdown:Refresh(configs)
+                ConfigDropdown:Set(Lieris.CurrentConfig)
             end
         end
     })
     
     ConfigSection:CreateButton({
-        Name = "Load Selected Config",
+        Name = "Load Config",
         Callback = function()
-            local success = Lieris:LoadConfig(Lieris.CurrentConfig)
-            if success then
-                Lieris:Notify({
-                    Title = "Loaded",
-                    Content = "Configuration loaded: " .. Lieris.CurrentConfig,
-                    Type = "Success",
-                    Duration = 3
-                })
-            else
-                Lieris:Notify({
-                    Title = "Load Failed",
-                    Content = "Could not find configuration",
-                    Type = "Error",
-                    Duration = 3
-                })
-            end
+            Lieris:LoadConfig(Lieris.CurrentConfig)
         end
     })
     
     ConfigSection:CreateButton({
-        Name = "Delete Selected Config",
+        Name = "Delete Config",
         Callback = function()
-            if Lieris.CurrentConfig == "default" then
-                Lieris:Notify({
-                    Title = "Warning",
-                    Content = "Cannot delete default config",
-                    Type = "Warning",
-                    Duration = 3
-                })
-                return
-            end
-            local success = Lieris:DeleteConfig(Lieris.CurrentConfig)
-            if success then
-                Lieris:Notify({
-                    Title = "Deleted",
-                    Content = "Configuration deleted: " .. Lieris.CurrentConfig,
-                    Type = "Warning",
-                    Duration = 3
-                })
-                Lieris.CurrentConfig = "default"
-                RefreshConfigList()
-                ConfigDropdown:Set("default")
-            else
-                Lieris:Notify({
-                    Title = "Delete Failed",
-                    Content = "Could not delete configuration",
-                    Type = "Error",
-                    Duration = 3
-                })
+            if Lieris.CurrentConfig ~= "default" then
+                Lieris:DeleteConfig(Lieris.CurrentConfig)
+                local configs = Lieris:GetConfigs()
+                if #configs == 0 then configs = {"default"} end
+                ConfigDropdown:Refresh(configs)
+                ConfigDropdown:Set(configs[1])
+                Lieris.CurrentConfig = configs[1]
             end
         end
     })
     
-    ConfigSection:CreateButton({
-        Name = "Refresh Config List",
+    local UISection = SettingsTab:CreateSection("Interface")
+    
+    UISection:CreateKeybind({
+        Name = "Toggle UI",
+        Default = Enum.KeyCode.H,
+        Flag = "ToggleKey",
         Callback = function()
-            RefreshConfigList()
-            Lieris:Notify({
-                Title = "Refreshed",
-                Content = "Config list updated",
-                Type = "Info",
-                Duration = 2
-            })
+            Window:ToggleUI()
         end
     })
     
-    -- ========================================
-    -- THEME COLORS SECTION
-    -- ========================================
-    local ThemeSection = ConfigManagerTab:CreateSection("Theme Colors")
-    
-    ThemeSection:CreateParagraph({
-        Title = "Customize Colors",
-        Content = "Personalize the interface by changing accent colors. Changes apply in real-time."
+    UISection:CreateParagraph({
+        Title = "Lieris UI v4.0",
+        Content = "Press H to toggle UI visibility"
     })
     
-    ThemeSection:CreateColorPicker({
-        Name = "Primary Accent",
-        Default = Colors.Accent1,
-        Flag = "ThemeAccent1",
-        Callback = function(color)
-            Colors.Accent1 = color
-        end
-    })
-    
-    ThemeSection:CreateColorPicker({
-        Name = "Secondary Accent",
-        Default = Colors.Accent2,
-        Flag = "ThemeAccent2",
-        Callback = function(color)
-            Colors.Accent2 = color
-        end
-    })
-    
-    ThemeSection:CreateColorPicker({
-        Name = "Text Color",
-        Default = Colors.Text,
-        Flag = "ThemeText",
-        Callback = function(color)
-            Colors.Text = color
-        end
-    })
-    
-    ThemeSection:CreateColorPicker({
-        Name = "Secondary Text",
-        Default = Colors.TextDark,
-        Flag = "ThemeTextDark",
-        Callback = function(color)
-            Colors.TextDark = color
-        end
-    })
-    
-    ThemeSection:CreateButton({
-        Name = "Reset to Default Colors",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(80, 120, 255)
-            Colors.Accent2 = Color3.fromRGB(150, 80, 255)
-            Colors.Text = Color3.fromRGB(250, 250, 255)
-            Colors.TextDark = Color3.fromRGB(145, 145, 165)
-            
-            Lieris.Flags.ThemeAccent1 = Colors.Accent1
-            Lieris.Flags.ThemeAccent2 = Colors.Accent2
-            Lieris.Flags.ThemeText = Colors.Text
-            Lieris.Flags.ThemeTextDark = Colors.TextDark
-            
-            Lieris:Notify({
-                Title = "Colors Reset",
-                Content = "Theme colors restored to defaults",
-                Type = "Info",
-                Duration = 3
-            })
-        end
-    })
-    
-    -- ========================================
-    -- INTERFACE SETTINGS SECTION
-    -- ========================================
-    local InterfaceSection = ConfigManagerTab:CreateSection("Interface Settings")
-    
-    InterfaceSection:CreateKeybind({
-        Name = "Toggle UI Hotkey",
-        Default = Enum.KeyCode.RightShift,
-        Flag = "UIToggleKey",
-        Callback = function()
-            WindowObj:ToggleUI()
-        end,
-        ChangedCallback = function(key)
-            Lieris:Notify({
-                Title = "Hotkey Changed",
-                Content = "UI toggle key set to: " .. key.Name,
-                Type = "Info",
-                Duration = 2
-            })
-        end
-    })
-    
-    InterfaceSection:CreateToggle({
-        Name = "Show Notifications",
-        Default = true,
-        Flag = "ShowNotifications",
-        Callback = function(value)
-            Lieris.NotificationsEnabled = value
-        end
-    })
-    
-    InterfaceSection:CreateSlider({
-        Name = "Notification Duration",
-        Min = 1,
-        Max = 10,
-        Default = 3,
-        Increment = 0.5,
-        Flag = "NotificationDuration",
-        Callback = function(value)
-            Lieris.DefaultNotificationDuration = value
-        end
-    })
-    
-    InterfaceSection:CreateToggle({
-        Name = "Auto-Load Last Config",
-        Default = false,
-        Flag = "AutoLoadConfig",
-        Callback = function(value)
-            Lieris.AutoLoadConfig = value
-        end
-    })
-    
-    InterfaceSection:CreateToggle({
-        Name = "Auto-Save on Close",
-        Default = false,
-        Flag = "AutoSaveOnClose",
-        Callback = function(value)
-            Lieris.AutoSaveOnClose = value
-        end
-    })
-    
-    -- ========================================
-    -- PRESETS SECTION
-    -- ========================================
-    local PresetsSection = ConfigManagerTab:CreateSection("Color Presets")
-    
-    PresetsSection:CreateParagraph({
-        Title = "Quick Themes",
-        Content = "Apply pre-made color schemes with one click."
-    })
-    
-    PresetsSection:CreateButton({
-        Name = "Blue Theme",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(80, 120, 255)
-            Colors.Accent2 = Color3.fromRGB(100, 150, 255)
-            Lieris:Notify({Title = "Theme Applied", Content = "Blue theme activated", Type = "Success", Duration = 2})
-        end
-    })
-    
-    PresetsSection:CreateButton({
-        Name = "Purple Theme",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(150, 80, 255)
-            Colors.Accent2 = Color3.fromRGB(180, 120, 255)
-            Lieris:Notify({Title = "Theme Applied", Content = "Purple theme activated", Type = "Success", Duration = 2})
-        end
-    })
-    
-    PresetsSection:CreateButton({
-        Name = "Green Theme",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(60, 200, 120)
-            Colors.Accent2 = Color3.fromRGB(100, 230, 150)
-            Lieris:Notify({Title = "Theme Applied", Content = "Green theme activated", Type = "Success", Duration = 2})
-        end
-    })
-    
-    PresetsSection:CreateButton({
-        Name = "Red Theme",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(255, 80, 80)
-            Colors.Accent2 = Color3.fromRGB(255, 120, 100)
-            Lieris:Notify({Title = "Theme Applied", Content = "Red theme activated", Type = "Success", Duration = 2})
-        end
-    })
-    
-    PresetsSection:CreateButton({
-        Name = "Orange Theme",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(255, 140, 50)
-            Colors.Accent2 = Color3.fromRGB(255, 180, 80)
-            Lieris:Notify({Title = "Theme Applied", Content = "Orange theme activated", Type = "Success", Duration = 2})
-        end
-    })
-    
-    PresetsSection:CreateButton({
-        Name = "Pink Theme",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(255, 100, 150)
-            Colors.Accent2 = Color3.fromRGB(255, 150, 200)
-            Lieris:Notify({Title = "Theme Applied", Content = "Pink theme activated", Type = "Success", Duration = 2})
-        end
-    })
-    
-    PresetsSection:CreateButton({
-        Name = "Cyan Theme",
-        Callback = function()
-            Colors.Accent1 = Color3.fromRGB(60, 200, 220)
-            Colors.Accent2 = Color3.fromRGB(100, 230, 250)
-            Lieris:Notify({Title = "Theme Applied", Content = "Cyan theme activated", Type = "Success", Duration = 2})
-        end
-    })
-    
-    -- ========================================
-    -- INFO SECTION
-    -- ========================================
-    local InfoSection = ConfigManagerTab:CreateSection("Information")
-    
-    InfoSection:CreateParagraph({
-        Title = "Lieris UI Library v3.0",
-        Content = "A modern, feature-rich UI library designed for creating beautiful and functional script interfaces. Documentation is included at the top of this file."
-    })
-    
-    InfoSection:CreateButton({
-        Name = "Copy GitHub Link",
-        Callback = function()
-            if setclipboard then
-                setclipboard("https://github.com/ccodix/Lieris")
-                Lieris:Notify({
-                    Title = "Copied",
-                    Content = "GitHub link copied to clipboard",
-                    Type = "Success",
-                    Duration = 2
-                })
-            end
-        end
-    })
-    
-    InfoSection:CreateLabel("Created with care for the community")
-    
-    return WindowObj
+    return Window
 end
 
--- ============================================================================
--- EXPOSE LIBRARY
--- ============================================================================
-
-Lieris.Icons = Assets.Icons
-Lieris.Assets = Assets
 Lieris.Colors = Colors
+Lieris.Assets = Assets
 
 return Lieris
